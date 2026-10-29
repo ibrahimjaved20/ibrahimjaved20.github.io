@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grant Assistant — Opportunity QA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F8F8; --surface:#FFFFFF; --surface-2:#FAFCFC; --raise:#F0F5F4;
+    --line:#E3EBEB; --line-2:#EDF2F2;
+    --ink:#122430; --ink-2:#516069; --ink-3:#8B9AA1;
+    --acc:#0E8C7C; --acc-2:#12A390; --acc-ink:#0A6E62; --acc-wash:#E3F3F0; --acc-line:#BEE4DD; --acc-glow:rgba(14,140,124,.16);
+    --ok:#238A4E; --ok-wash:#E9F6EE; --ok-line:#C6E7D2;
+    --rev:#B0790F; --rev-wash:#FBF3DF; --rev-line:#EDDCB2;
+    --err:#C4463A; --err-wash:#FBEBE8; --err-line:#F2CEC7;
+    --neu:#78878F; --neu-wash:#EFF3F3;
+    --ui:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --r-lg:16px; --r-md:11px; --r-sm:8px;
+    --sh-sm:0 1px 2px rgba(18,36,48,.05);
+    --sh:0 1px 2px rgba(18,36,48,.04), 0 6px 18px -8px rgba(18,36,48,.10);
+    --focus:0 0 0 3px var(--acc-glow);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:var(--ui);color:var(--ink);background:var(--bg);
+    font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:var(--acc-wash);color:var(--acc-ink)}
+
+  /* header */
+  header{background:var(--surface);border-bottom:1px solid var(--line);padding:16px 28px;
+    position:sticky;top:0;z-index:5}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .side-toggle{display:inline-flex;align-items:center;gap:7px;font-family:var(--ui);font-size:12.5px;font-weight:600;
+    padding:8px 13px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface);color:var(--ink-2);
+    cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+  .side-toggle:hover{background:var(--raise);color:var(--ink);border-color:#D4DEDE}
+  .side-toggle:focus-visible{outline:none;box-shadow:var(--focus)}
+  .side-toggle .st-icon{font-size:13px;line-height:1}
+  .left{transition:width .22s ease, min-width .22s ease, max-width .22s ease, padding .22s ease, opacity .16s ease}
+  .sidebar-collapsed .left{width:0;min-width:0;max-width:0;padding-left:0;padding-right:0;opacity:0;overflow:hidden;border-right:none;pointer-events:none}
+  .sidebar-collapsed .right{max-width:none}
+  .brand{display:flex;align-items:center;gap:13px}
+  .brand .mark{width:36px;height:36px;border-radius:10px;color:#fff;font-weight:700;font-size:13.5px;
+    display:flex;align-items:center;justify-content:center;font-family:var(--ui);letter-spacing:.01em;
+    background:linear-gradient(145deg,var(--acc-2),var(--acc));box-shadow:0 4px 12px -3px var(--acc-glow)}
+  header h1{font-size:15.5px;margin:0;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+  .sub{color:var(--ink-2);font-size:12.5px;margin-top:1px;font-weight:500}
+
+  /* layout */
+  .layout{display:flex;min-height:calc(100vh - 69px)}
+  .left{width:33%;min-width:312px;max-width:450px;border-right:1px solid var(--line);
+    background:var(--surface);display:flex;flex-direction:column;padding:22px}
+  .right{flex:1;padding:24px 30px;overflow-x:hidden;max-width:1140px}
+
+  label.ft{font-weight:600;font-size:12.5px;color:var(--ink);letter-spacing:0}
+  textarea#input{flex:1;width:100%;min-height:230px;margin-top:10px;font-family:var(--mono);
+    font-size:12px;line-height:1.65;border:1px solid var(--line);border-radius:var(--r-md);
+    padding:14px;resize:vertical;background:var(--surface-2);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+  textarea#input::placeholder{color:var(--ink-3)}
+  textarea#input:focus{outline:none;border-color:var(--acc);box-shadow:var(--focus)}
+
+  .btnrow{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+  button{font-family:var(--ui);font-size:13px;font-weight:600;padding:9px 16px;border-radius:var(--r-sm);
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;
+    transition:background .15s,border-color .15s,box-shadow .15s,color .15s}
+  button:hover{background:var(--raise);border-color:#D4DEDE}
+  button:focus-visible{outline:none;box-shadow:var(--focus)}
+  button.primary{background:var(--acc);color:#fff;border-color:var(--acc);box-shadow:0 4px 12px -4px var(--acc-glow)}
+  button.primary:hover{background:var(--acc-ink);border-color:var(--acc-ink)}
+  button:disabled{opacity:.45;cursor:default}
+  .drop-note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.5}
+  .parse-err{margin-top:14px;padding:12px 14px;border-radius:var(--r-sm);background:var(--err-wash);
+    color:var(--err);font-size:12.5px;font-family:var(--mono);display:none;border:1px solid var(--err-line)}
+
+  /* nav */
+  .nav{display:none;align-items:center;gap:9px;margin-bottom:18px;flex-wrap:wrap}
+  .nav select,#goInput{padding:8px 11px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;
+    font-family:var(--ui);background:var(--surface);color:var(--ink);max-width:340px}
+  .nav select:focus,#goInput:focus{outline:none;border-color:var(--acc);box-shadow:var(--focus)}
+  .rec-count{font-size:12.5px;color:var(--ink-2);font-weight:500}
+
+  /* verdict — the hero, a clean status card */
+  .verdict{padding:18px 20px;border-radius:var(--r-lg);margin-bottom:18px;display:none;
+    border:1px solid var(--line);background:var(--surface);box-shadow:var(--sh);position:relative;overflow:hidden;
+    transition:border-color .2s}
+  .verdict::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ink-3);transition:background .2s}
+  .verdict .big{font-size:18px;font-weight:700;letter-spacing:-.015em}
+  .verdict .line{font-size:12.5px;margin-top:5px;line-height:1.55;color:var(--ink-2);max-width:920px}
+  .verdict.pass::before{background:var(--ok)} .verdict.pass .big{color:var(--ok)}
+  .verdict.review::before{background:var(--rev)} .verdict.review .big{color:var(--rev)}
+  .verdict.fail::before{background:var(--err)} .verdict.fail .big{color:var(--err)}
+
+  /* metric chips */
+  .summary{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+  .pill{font-size:12px;padding:6px 13px;border-radius:999px;font-weight:600;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+  .pill.ok{background:var(--ok-wash);color:var(--ok);border-color:var(--ok-line)}
+  .pill.empty{background:var(--rev-wash);color:var(--rev);border-color:var(--rev-line)}
+  .pill.err{background:var(--err-wash);color:var(--err);border-color:var(--err-line)}
+  .pill.miss{background:var(--neu-wash);color:var(--neu);border-color:var(--line)}
+
+  /* filter */
+  .filter-row{display:flex;gap:14px;align-items:center;margin-bottom:16px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
+  .filter-row input[type=search]{flex:1;min-width:150px;padding:9px 12px;border:1px solid var(--line);
+    border-radius:var(--r-sm);font-size:13px;font-family:var(--ui);background:var(--surface);color:var(--ink)}
+  .filter-row input[type=search]:focus{outline:none;border-color:var(--acc);box-shadow:var(--focus)}
+  .toggle{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;font-weight:500}
+  .toggle input{accent-color:var(--acc)}
+
+  /* section header */
+  .sect{font-size:12.5px;font-weight:700;color:var(--ink);margin:28px 0 8px;padding-bottom:8px;
+    border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .sect .hint{font-weight:500;font-size:11.5px;color:var(--ink-3)}
+
+  /* rows — valid quiet, problems tinted */
+  .row{display:grid;grid-template-columns:10px minmax(150px,230px) 1fr;gap:15px;padding:9px 12px;
+    border-radius:var(--r-sm);align-items:start;position:relative;transition:background .12s}
+  .row:hover{background:var(--raise)}
+  .row::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;border-radius:2px;background:transparent}
+  .row.st-valid::before{background:var(--ok-line)}
+  .row.st-empty{background:var(--rev-wash)} .row.st-empty::before{background:var(--rev)}
+  .row.st-missing{background:var(--err-wash)} .row.st-missing::before{background:var(--err)}
+  .row.st-error{background:var(--err-wash)} .row.st-error::before{background:var(--err)}
+  .row.st-sysempty::before{background:var(--line)}
+  .dot{width:8px;height:8px;border-radius:50%;margin-top:7px;justify-self:center}
+  .dot.valid{background:var(--ok)} .dot.empty{background:var(--rev)}
+  .dot.missing,.dot.error{background:var(--err)} .dot.sysempty{background:var(--neu)}
+  .key{font-family:var(--mono);font-size:12px;word-break:break-word;padding-top:5px;line-height:1.45}
+  .key .lbl{color:var(--ink)}
+  .key .type{display:block;font-size:10.5px;color:var(--ink-3);margin-top:3px;font-family:var(--ui);font-weight:500}
+  .key .matched{display:block;font-size:10.5px;color:var(--acc-ink);margin-top:2px;font-family:var(--mono)}
+  .val textarea,.val input,.val select{width:100%;font-family:var(--mono);font-size:12px;padding:8px 11px;
+    border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);
+    resize:vertical;transition:border-color .15s,box-shadow .15s}
+  .val textarea:focus,.val input:focus,.val select:focus{outline:none;border-color:var(--acc);box-shadow:var(--focus)}
+  .val .meta{font-size:11px;color:var(--ink-3);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono)}
+  .val .meta .bad{color:var(--err);font-weight:600} .val .meta .warn{color:var(--rev);font-weight:600}
+  .val .note,.val .missing-note{font-size:12px;color:var(--ink-2);padding-top:5px}
+  .readonly{background:var(--raise)!important;color:var(--ink-2)}
+
+  /* cards */
+  .card{border:1px solid var(--line);border-radius:var(--r-md);padding:6px 15px 13px;margin-bottom:13px;
+    background:var(--surface-2)}
+  .card>.card-t{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--acc-ink);padding:10px 0}
+
+  /* ntee */
+  .ntee-bd{margin-top:7px;display:flex;flex-direction:column;gap:3px}
+  .nt-item{font-size:11.5px;font-family:var(--ui)}
+  .nt-item code{font-family:var(--mono);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+  .nt-ok{color:var(--ok)} .nt-unk{color:var(--rev)} .nt-code{color:var(--err)}
+  .nt-from{color:var(--ink-3)}
+
+  /* extras */
+  .extra-box{border:1px solid var(--rev-line);background:var(--rev-wash);border-radius:var(--r-md);
+    padding:13px 15px;margin-top:15px;font-size:12.5px;color:var(--rev)}
+  .extra-box b{color:var(--rev);font-weight:700}
+  .extra-box code{font-family:var(--mono);font-size:12px;background:var(--surface);padding:2px 6px;border-radius:5px;
+    border:1px solid var(--rev-line);margin:3px 4px 0 0;display:inline-block;color:var(--ink)}
+
+  .empty-state{color:var(--ink-3);padding:58px 0;text-align:center;font-size:13.5px;font-weight:500}
+
+  /* batch */
+  #batch{display:none;margin-bottom:22px}
+  #batchProg{font-size:12.5px;color:var(--ink-2);margin:9px 0;font-weight:500}
+  table.batch{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-sm)}
+  table.batch th,table.batch td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line-2)}
+  table.batch th{font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface-2)}
+  table.batch td:first-child{font-family:var(--mono);color:var(--ink-3)}
+  table.batch tr:last-child td{border-bottom:none}
+  table.batch tr.clk{cursor:pointer;transition:background .12s}
+  table.batch tr.clk:hover{background:var(--acc-wash)}
+  .tag{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+  .tag.pass{background:var(--ok-wash);color:var(--ok)}
+  .tag.review{background:var(--rev-wash);color:var(--rev)}
+  .tag.fail{background:var(--err-wash);color:var(--err)}
+
+  .srcbadge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:999px;white-space:nowrap}
+  .src-ok{background:var(--ok-wash);color:var(--ok);border:1px solid var(--ok-line)}
+  .src-bad{background:var(--err-wash);color:var(--err);border:1px solid var(--err-line)}
+  .src-unk{background:var(--neu-wash);color:var(--neu);border:1px solid var(--line)}
+  footer{padding:36px 0 16px;color:var(--ink-3);font-size:11.5px;line-height:1.65;max-width:790px}
+  footer b{color:var(--ink-2);font-weight:600}
+
+  @media (max-width:820px){
+    .layout{flex-direction:column}
+    .left{width:100%;max-width:none;border-right:none;border-bottom:1px solid var(--line)}
+    .right{max-width:none}
+    .row{grid-template-columns:10px 1fr}.key{grid-column:2}.dot{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="mark" aria-hidden="true">GA</span>
+    <div>
+      <h1>Grant Assistant</h1>
+      <div class="sub">Opportunity data QA</div>
+    </div>
+  </div>
+  <button id="sidebarToggle" class="side-toggle" title="Hide input panel" aria-label="Toggle input panel" aria-expanded="true">
+    <span class="st-icon">⟨</span><span class="st-label">Hide panel</span>
+  </button>
+</header>
+
+<div class="layout">
+  <div class="left">
+    <label class="ft" for="input">Paste opportunity JSON (single object or array)</label>
+    <textarea id="input" placeholder='[ { "title": "…", "dueDate": {…}, "stages": [ … ] } ]' spellcheck="false"></textarea>
+    <div class="btnrow">
+      <button class="primary" id="loadBtn">Run QA</button>
+      <button id="fileBtn">Open .json file</button>
+      <input type="file" id="fileInput" accept=".json,application/json" style="display:none">
+    </div>
+    <div class="drop-note">You can also drag a .json file onto the box. Arrays of many records are supported.</div>
+    <div class="parse-err" id="parseErr"></div>
+  </div>
+
+  <div class="right">
+    <div class="nav" id="nav">
+      <button id="prevBtn">Prev</button>
+      <select id="recSel"></select>
+      <button id="nextBtn">Next</button>
+      <span class="rec-count" id="recCount"></span>
+      <button id="overviewBtn">Check all</button>
+    </div>
+
+    <div id="batch">
+      <div class="sect">Batch overview <span class="hint">click a row to open it</span></div>
+      <table class="batch"><thead><tr><th>#</th><th>Title</th><th>Verdict</th><th>Errors</th><th>Empty</th></tr></thead><tbody id="batchBody"></tbody></table>
+    </div>
+
+    <div class="verdict" id="verdict"></div>
+    <div class="summary" id="summary"></div>
+    <div class="form-note" style="font-size:11.5px;color:var(--ink-3);margin-bottom:12px;line-height:1.5;border-left:2px solid var(--line);padding-left:10px">Checks structure &amp; rules only (present, correct type, within limits, no contradictions). It does <b>not</b> verify whether values match the funder's page — use source verification for accuracy.</div>
+    <div class="filter-row" id="filterRow" style="display:none">
+      <input type="search" id="search" placeholder="Filter fields by name…">
+      <label class="toggle"><input type="checkbox" id="onlyProblems"> Only problems</label>
+    </div>
+    <div id="form"><div class="empty-state">Paste JSON on the left and click <b>Run QA</b>.</div></div>
+    <div class="btnrow" id="exportRow" style="display:none">
+      <button class="primary" id="copyBtn">Copy this record</button>
+      <button id="downloadBtn">Download this record</button>
+      <button id="downloadAllBtn" style="display:none">Download all records</button>
+    </div>
+    <footer>Runs entirely in your browser. Nothing is uploaded. Rule set: every field must be <b>present</b> (missing key = error); wrong type / bad dropdown value / Summary over 170 words = error; empty values = amber review, since empties are common in real records. Edit the RULES block in the code to make specific fields non-empty-required.</footer>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ============ NTEE lookup (from NTEE_Sheet.xlsx) ============
+  var NTEE_MAJOR={"A": "Art, Culture, and Humanities", "B": "Education Institutions and Related Activities", "C": "Environmental Quality Protection and Beautification", "D": "Animal Related", "E": "Health General and Rehabilitative", "F": "Mental Health Crisis Intervention", "G": "Disease Disorders Medical Disciplines", "H": "Medical Research", "I": "Crime Legal Related", "J": "Employment Job Related", "K": "Food Agriculture and Nutrition", "L": "Housing Shelter", "M": "Public Safety Disaster Preparedness and Relief", "N": "Recreation Sports Leisure Athletics", "O": "Youth Development", "P": "Human Services Multipurpose and Other", "Q": "International Foreign Affairs and National Security", "R": "Civil Rights Social Action Advocacy", "S": "Community Improvement Capacity Building", "T": "Philanthropy Voluntarism and Grantmaking Foundations", "U": "Science and Technology Research Institutes Services", "V": "Social Science Research Institutes", "W": "Public Society Benefit Multipurpose", "X": "Religion Related Spiritual Development", "Y": "Mutual, Membership Benefit Organizations, Other", "Z": "Internal Use"};
+  var NTEE_CODES={"A01": "Alliances & Advocacy", "A02": "Management & Technical Assistance", "A03": "Professional Societies & Associations", "A05": "Research Institutes & Public Policy Analysis", "A11": "Single Organization Support", "A12": "Fund Raising & Fund Distribution", "A19": "Support N.E.C.", "A20": "Arts & Culture", "A23": "Cultural & Ethnic Awareness", "A24": "Folk Arts", "A25": "Arts Education", "A26": "Arts & Humanities Councils & Agencies", "A27": "Community Celebrations", "A30": "Media & Communications", "A31": "Film & Video", "A32": "Television", "A33": "Printing & Publishing", "A34": "Radio", "A40": "Visual Arts", "A50": "Museums", "A51": "Art Museums", "A52": "Children's Museums", "A53": "Folk Arts Museums", "A54": "History Museums", "A56": "Natural History & Natural Science Museums", "A57": "Science & Technology Museums", "A60": "Performing Arts", "A61": "Performing Arts Centers", "A62": "Dance", "A63": "Ballet", "A65": "Theater", "A68": "Music", "A69": "Symphony Orchestras", "A6A": "Opera", "A6B": "Singing & Choral Groups", "A6C": "Bands & Ensembles", "A6E": "Performing Arts Schools", "A70": "Humanities", "A80": "Historical Organizations", "A82": "Historical Societies & Historic Preservation", "A84": "Commemorative Events", "A90": "Arts Services", "A99": "Arts, Culture & Humanities N.E.C.", "B01": "Alliances & Advocacy", "B02": "Management & Technical Assistance", "B03": "Professional Societies & Associations", "B05": "Research Institutes & Public Policy Analysis", "B11": "Single Organization Support", "B12": "Fund Raising & Fund Distribution", "B19": "Support N.E.C.", "B20": "Elementary & Secondary Schools", "B21": "Preschools", "B24": "Primary & Elementary Schools", "B25": "Secondary & High Schools", "B28": "Special Education", "B29": "Charter Schools", "B30": "Vocational & Technical Schools", "B40": "Higher Education", "B41": "Two-Year Colleges", "B42": "Undergraduate Colleges", "B43": "Universities", "B50": "Graduate & Professional Schools", "B60": "Adult Education", "B70": "Libraries", "B80": "Student Services", "B82": "Scholarships & Student Financial Aid", "B83": "Student Sororities & Fraternities", "B84": "Alumni Associations", "B90": "Educational Services", "B92": "Remedial Reading & Encouragement", "B94": "Parent & Teacher Groups", "B99": "Education N.E.C.", "C01": "Alliances & Advocacy", "C02": "Management & Technical Assistance", "C03": "Professional Societies & Associations", "C05": "Research Institutes & Public Policy Analysis", "C11": "Single Organization Support", "C12": "Fund Raising & Fund Distribution", "C19": "Support N.E.C.", "C20": "Pollution Abatement & Control", "C27": "Recycling", "C30": "Natural Resources Conservation & Protection", "C32": "Water Resources, Wetlands Conservation & Management", "C34": "Land Resources Conservation", "C35": "Energy Resources Conservation & Development", "C36": "Forest Conservation", "C40": "Botanical, Horticultural & Landscape Services", "C41": "Botanical Gardens & Arboreta", "C42": "Garden Clubs", "C50": "Environmental Beautification", "C60": "Environmental Education", "C99": "Environment N.E.C.", "D01": "Alliances & Advocacy", "D02": "Management & Technical Assistance", "D03": "Professional Societies & Associations", "D05": "Research Institutes & Public Policy Analysis", "D11": "Single Organization Support", "D12": "Fund Raising & Fund Distribution", "D19": "Support N.E.C.", "D20": "Animal Protection & Welfare", "D30": "Wildlife Preservation & Protection", "D31": "Protection of Endangered Species", "D32": "Bird Sanctuaries", "D33": "Fisheries Resources", "D34": "Wildlife Sanctuaries", "D40": "Veterinary Services", "D50": "Zoos & Aquariums", "D60": "Animal Services N.E.C.", "D61": "Animal Training", "D99": "Animal-Related N.E.C.", "E01": "Alliances & Advocacy", "E02": "Management & Technical Assistance", "E03": "Professional Societies & Associations", "E05": "Research Institutes & Public Policy Analysis", "E11": "Single Organization Support", "E12": "Fund Raising & Fund Distribution", "E19": "Support N.E.C.", "E20": "Hospitals", "E21": "Community Health Systems", "E22": "General Hospitals", "E24": "Specialty Hospitals", "E30": "Ambulatory & Primary Health Care", "E31": "Group Health Practices", "E32": "Community Clinics", "E40": "Reproductive Health Care", "E42": "Family Planning", "E50": "Rehabilitative Care", "E60": "Health Support", "E61": "Blood Banks", "E62": "Emergency Medical Services & Transport", "E65": "Organ & Tissue Banks", "E6A": "Pharmacies and drug stores", "E70": "Public Health", "E80": "Health (General & Financing)", "E86": "Patient & Family Support", "E90": "Nursing", "E91": "Nursing Facilities", "E92": "Home Health Care", "E99": "Health Care N.E.C.", "F01": "Alliances & Advocacy", "F02": "Management & Technical Assistance", "F03": "Professional Societies & Associations", "F05": "Research Institutes & Public Policy Analysis", "F11": "Single Organization Support", "F12": "Fund Raising & Fund Distribution", "F19": "Support N.E.C.", "F20": "Substance Abuse Dependency, Prevention & Treatment", "F21": "Substance Abuse Prevention", "F22": "Substance Abuse Treatment", "F30": "Mental Health Treatment", "F31": "Psychiatric Hospitals", "F32": "Community Mental Health Centers", "F33": "Residential Mental Health Treatment", "F40": "Hot Lines & Crisis Intervention", "F42": "Sexual Assault Services", "F50": "Addictive Disorders N.E.C.", "F52": "Smoking Addiction", "F53": "Eating Disorders & Addictions", "F54": "Gambling Addiction", "F60": "Counseling", "F70": "Mental Health Disorders", "F80": "Mental Health Associations", "F99": "Mental Health & Crisis Intervention N.E.C.", "G01": "Alliances & Advocacy", "G02": "Management & Technical Assistance", "G03": "Professional Societies & Associations", "G05": "Research Institutes & Public Policy Analysis", "G11": "Single Organization Support", "G12": "Fund Raising & Fund Distribution", "G19": "Support N.E.C.", "G20": "Birth Defects & Genetic Diseases", "G25": "Down Syndrome", "G30": "Cancer", "G32": "Breast Cancer", "G40": "Diseases of Specific Organs", "G41": "Eye Diseases, Blindness & Vision Impairments", "G42": "Ear & Throat Diseases", "G43": "Heart & Circulatory System Diseases & Disorders", "G44": "Kidney Diseases", "G45": "Lung Diseases", "G48": "Brain Disorders", "G50": "Nerve, Muscle & Bone Diseases", "G51": "Arthritis", "G54": "Epilepsy", "G60": "Allergy-Related Diseases", "G61": "Asthma", "G70": "Digestive Diseases & Disorders", "G80": "Specifically Named Diseases", "G81": "AIDS", "G83": "Alzheimers Disease", "G84": "Autism", "G90": "Medical Disciplines", "G92": "Biomedicine & Bioengineering", "G94": "Geriatrics", "G96": "Neurology & Neuroscience", "G98": "Pediatrics", "G99": "Voluntary Health Associations & Medical Disciplines N.E.C.", "G9B": "Surgical Specialties", "H01": "Alliances & Advocacy", "H02": "Management & Technical Assistance", "H03": "Professional Societies & Associations", "H05": "Research Institutes & Public Policy Analysis", "H11": "Single Organization Support", "H12": "Fund Raising & Fund Distribution", "H19": "Support N.E.C.", "H20": "Birth Defects & Genetic Diseases Research", "H25": "Down Syndrome Research", "H30": "Cancer Research", "H32": "Breast Cancer Research", "H40": "Diseases of Specific Organs Research", "H41": "Eye Diseases, Blindness & Vision Impairments Research", "H42": "Ear & Throat Diseases Research", "H43": "Heart & Circulatory System Diseases & Disorders Research", "H44": "Kidney Diseases Research", "H45": "Lung Diseases Research", "H48": "Brain Disorders Research", "H50": "Nerve, Muscle & Bone Diseases Research", "H51": "Arthritis Research", "H54": "Epilepsy Research", "H60": "Allergy-Related Diseases Research", "H61": "Asthma Research", "H70": "Digestive Diseases & Disorders Research", "H80": "Specifically Named Diseases Research", "H81": "AIDS Research", "H83": "Alzheimers Disease Research", "H84": "Autism Research", "H90": "Medical Disciplines Research", "H92": "Biomedicine & Bioengineering Research", "H94": "Geriatrics Research", "H96": "Neurology & Neuroscience Research", "H98": "Pediatrics Research", "H99": "Medical Research N.E.C.", "H9B": "Surgical Specialties Research", "I01": "Alliances & Advocacy", "I02": "Management & Technical Assistance", "I03": "Professional Societies & Associations", "I05": "Research Institutes & Public Policy Analysis", "I11": "Single Organization Support", "I12": "Fund Raising & Fund Distribution", "I19": "Support N.E.C.", "I20": "Crime Prevention", "I21": "Youth Violence Prevention", "I23": "Drunk Driving-Related", "I30": "Correctional Facilities", "I31": "Half-Way Houses for Offenders & Ex-Offenders", "I40": "Rehabilitation Services for Offenders", "I43": "Inmate Support", "I44": "Prison Alternatives", "I50": "Administration of Justice", "I51": "Dispute Resolution & Mediation", "I60": "Law Enforcement", "I70": "Protection Against Abuse", "I71": "Spouse Abuse Prevention", "I72": "Child Abuse Prevention", "I73": "Sexual Abuse Prevention", "I80": "Legal Services", "I83": "Public Interest Law", "I99": "Crime & Legal-Related N.E.C.", "J01": "Alliances & Advocacy", "J02": "Management & Technical Assistance", "J03": "Professional Societies & Associations", "J05": "Research Institutes & Public Policy Analysis", "J11": "Single Organization Support", "J12": "Fund Raising & Fund Distribution", "J19": "Support N.E.C.", "J20": "Employment Preparation & Procurement", "J21": "Vocational Counseling", "J22": "Job Training", "J30": "Vocational Rehabilitation", "J32": "Goodwill Industries", "J33": "Sheltered Employment", "J40": "Labor Unions", "J99": "Employment N.E.C.", "K01": "Alliances & Advocacy", "K02": "Management & Technical Assistance", "K03": "Professional Societies & Associations", "K05": "Research Institutes & Public Policy Analysis", "K11": "Single Organization Support", "K12": "Fund Raising & Fund Distribution", "K19": "Support N.E.C.", "K20": "Agricultural Programs", "K25": "Farmland Preservation", "K26": "Animal Husbandry", "K28": "Farm Bureaus & Granges", "K2A": "Other Vegetable (except Potato) and Melon Farming", "K2B": "Soil Preparation, Planting, and Cultivating", "K2C": "Wineries", "K30": "Food Programs", "K31": "Food Banks & Pantries", "K34": "Congregate Meals", "K35": "Soup Kitchens", "K36": "Meals on Wheels", "K40": "Nutrition", "K50": "Home Economics", "K6A": "Meat markets", "K6B": "Confectionery and Nut Stores", "K6C": "Caterers", "K6D": "Mobile food services", "K6E": "Drinking Places (Alcoholic Beverages)", "K6F": "Snack and Nonalcoholic Beverage Bars", "K90": "Limited-Service Restaurants", "K91": "Supermarkets and Other Grocery (except Convenience) Stores", "K92": "Convenience Stores", "K93": "Fruit and Vegetable Markets", "K94": "All Other Specialty Food Stores", "K95": "Food (Health) Supplement Stores", "K96": "Warehouse Clubs and Supercenters", "K97": "Food Service Contractors", "K98": "Full-Service Restaurants", "K99": "Food, Agriculture & Nutrition N.E.C.", "L01": "Alliances & Advocacy", "L02": "Management & Technical Assistance", "L03": "Professional Societies & Associations", "L05": "Research Institutes & Public Policy Analysis", "L11": "Single Organization Support", "L12": "Fund Raising & Fund Distribution", "L19": "Support N.E.C.", "L20": "Housing Development, Construction & Management", "L21": "Low-Income & Subsidized Rental Housing", "L22": "Senior Citizens Housing & Retirement Communities", "L24": "Independent Housing for People with Disabilities", "L25": "Housing Rehabilitation", "L30": "Housing Search Assistance", "L40": "Temporary Housing", "L41": "Homeless Shelters", "L4A": "Hotels (except Casino Hotels) and Motels", "L4B": "Bed-and-breakfast inns", "L50": "Homeowners & Tenants Associations", "L80": "Housing Support", "L81": "Home Improvement & Repairs", "L82": "Housing Expense Reduction Support", "L99": "Housing & Shelter N.E.C.", "M01": "Alliances & Advocacy", "M02": "Management & Technical Assistance", "M03": "Professional Societies & Associations", "M05": "Research Institutes & Public Policy Analysis", "M11": "Single Organization Support", "M12": "Fund Raising & Fund Distribution", "M19": "Support N.E.C.", "M20": "Disaster Preparedness & Relief Services", "M23": "Search & Rescue Squads", "M24": "Fire Prevention", "M40": "Safety Education", "M41": "First Aid", "M42": "Automotive Safety", "M60": "Public Safety Benevolent Associations", "M99": "Public Safety, Disaster Preparedness & Relief N.E.C.", "N01": "Alliances & Advocacy", "N02": "Management & Technical Assistance", "N03": "Professional Societies & Associations", "N05": "Research Institutes & Public Policy Analysis", "N11": "Single Organization Support", "N12": "Fund Raising & Fund Distribution", "N19": "Support N.E.C.", "N20": "Camps", "N2A": "RV (Recreational Vehicle) Parks and Campgrounds", "N2B": "Recreational and Vacation Camps (Except Campgrounds)", "N30": "Physical Fitness & Community Recreational Facilities", "N31": "Community Recreational Centers", "N32": "Parks & Playgrounds", "N40": "Sports Associations & Training Facilities", "N50": "Recreational Clubs", "N52": "Fairs", "N60": "Amateur Sports", "N61": "Fishing & Hunting", "N62": "Basketball", "N63": "Baseball & Softball", "N64": "Soccer", "N65": "Football", "N66": "Racquet Sports", "N67": "Swimming & Other Water Recreation", "N68": "Winter Sports", "N69": "Equestrian", "N6A": "Golf", "N70": "Amateur Sports Competitions", "N71": "Olympics", "N72": "Special Olympics", "N80": "Professional Athletic Leagues", "N99": "Recreation & Sports N.E.C.", "O01": "Alliances & Advocacy", "O02": "Management & Technical Assistance", "O03": "Professional Societies & Associations", "O05": "Research Institutes & Public Policy Analysis", "O11": "Single Organization Support", "O12": "Fund Raising & Fund Distribution", "O19": "Support N.E.C.", "O20": "Youth Centers & Clubs", "O21": "Boys Clubs", "O22": "Girls Clubs", "O23": "Boys & Girls Clubs", "O30": "Adult & Child Matching Programs", "O31": "Big Brothers & Big Sisters", "O40": "Scouting", "O41": "Boy Scouts of America", "O42": "Girl Scouts of the U.S.A.", "O43": "Camp Fire", "O50": "Youth Development Programs", "O51": "Youth Community Service Clubs", "O52": "Youth Development - Agricultural", "O53": "Youth Development - Business", "O54": "Youth Development - Citizenship", "O55": "Youth Development - Religious Leadership", "O99": "Youth Development N.E.C.", "P01": "Alliances & Advocacy", "P02": "Management & Technical Assistance", "P03": "Professional Societies & Associations", "P05": "Research Institutes & Public Policy Analysis", "P11": "Single Organization Support", "P12": "Fund Raising & Fund Distribution", "P19": "Support N.E.C.", "P20": "Human Service Organizations", "P21": "American Red Cross", "P22": "Urban League", "P24": "Salvation Army", "P26": "Volunteers of America", "P27": "Young Mens or Womens Associations", "P28": "Neighborhood Centers", "P29": "Thrift Shops", "P30": "Children & Youth Services", "P31": "Adoption", "P32": "Foster Care", "P33": "Child Day Care", "P40": "Family Services", "P42": "Single Parent Agencies", "P43": "Family Violence Shelters", "P44": "In-Home Assistance", "P45": "Family Services for Adolescent Parents", "P46": "Family Counseling", "P47": "Pregnancy Centers", "P50": "Personal Social Services", "P51": "Financial Counseling", "P52": "Transportation Assistance", "P58": "Gift Distribution", "P60": "Emergency Assistance", "P61": "Travelers Aid", "P62": "Victims Services", "P70": "Residential Care & Adult Day Programs", "P71": "Adult Day Care", "P73": "Group Homes", "P74": "Hospices", "P75": "Supportive Housing for Older Adults", "P76": "Homes for Children & Adolescents", "P7A": "Residential Intellectual and Developmental Disability Facilities (group homes, intermediate care facilities & hospitals)", "P80": "Centers to Support the Independence of Specific Populations", "P81": "Senior Centers", "P82": "Developmentally Disabled Centers", "P83": "Women's Centers", "P84": "Ethnic & Immigrant Centers", "P85": "Homeless Centers", "P86": "Blind & Visually Impaired Centers", "P87": "Deaf & Hearing Impaired Centers", "P88": "LGBT Centers", "P99": "Human Services N.E.C.", "Q01": "Alliances & Advocacy", "Q02": "Management & Technical Assistance", "Q03": "Professional Societies & Associations", "Q05": "Research Institutes & Public Policy Analysis", "Q11": "Single Organization Support", "Q12": "Fund Raising & Fund Distribution", "Q19": "Support N.E.C.", "Q20": "Promotion of International Understanding", "Q21": "International Cultural Exchange", "Q22": "International Academic Exchange", "Q23": "International Exchange N.E.C.", "Q30": "International Development", "Q31": "International Agricultural Development", "Q32": "International Economic Development", "Q33": "International Relief", "Q34": "International Educational Development", "Q35": "International Democracy & Civil Society Development", "Q36": "International Science & Technology Development", "Q38": "International Environment, Population & Sustainability", "Q39": "International Health Development", "Q40": "International Peace & Security", "Q41": "Arms Control & Peace", "Q42": "United Nations Associations", "Q43": "National Security", "Q50": "International Affairs, Foreign Policy, & Globalization", "Q51": "International Economic & Trade Policy", "Q70": "International Human Rights", "Q71": "International Migration & Refugee Issues", "Q99": "International, Foreign Affairs & National Security N.E.C.", "R01": "Alliances & Advocacy", "R02": "Management & Technical Assistance", "R03": "Professional Societies & Associations", "R05": "Research Institutes & Public Policy Analysis", "R11": "Single Organization Support", "R12": "Fund Raising & Fund Distribution", "R19": "Support N.E.C.", "R20": "Civil Rights", "R21": "Immigrants' Rights", "R22": "Minority Rights", "R23": "Disabled Persons Rights", "R24": "Womens Rights", "R25": "Seniors Rights", "R26": "Lesbian & Gay Rights", "R27": "Patients' Rights", "R28": "Children's Rights", "R29": "Employee & Workers' Rights", "R30": "Intergroup & Race Relations", "R40": "Voter Education & Registration", "R60": "Civil Liberties", "R61": "Reproductive Rights", "R62": "Right to Life", "R63": "Censorship, Freedom of Speech & Press", "R65": "Freedom of Religion Issues", "R67": "Right to Die & Euthanasia", "R99": "Civil Rights, Social Action & Advocacy N.E.C.", "S01": "Alliances & Advocacy", "S02": "Management & Technical Assistance", "S03": "Professional Societies & Associations", "S05": "Research Institutes & Public Policy Analysis", "S11": "Single Organization Support", "S12": "Fund Raising & Fund Distribution", "S19": "Support N.E.C.", "S20": "Community & Neighborhood Development", "S21": "Community Coalitions", "S22": "Neighborhood & Block Associations", "S30": "Economic Development", "S31": "Urban & Community Economic Development", "S32": "Rural Economic Development", "S40": "Business & Industry", "S41": "Chambers of Commerce & Business Leagues", "S43": "Small Business Development", "S46": "Boards of Trade", "S47": "Real Estate Associations", "S50": "Nonprofit Management", "S80": "Community Service Clubs", "S81": "Womens Service Clubs", "S82": "Mens Service Clubs", "S99": "Community Improvement & Capacity Building N.E.C.", "T01": "Alliances & Advocacy", "T02": "Management & Technical Assistance", "T03": "Professional Societies & Associations", "T05": "Research Institutes & Public Policy Analysis", "T11": "Single Organization Support", "T12": "Fund Raising & Fund Distribution", "T19": "Support N.E.C.", "T20": "Private Grantmaking Foundations", "T21": "Corporate Foundations", "T22": "Private Independent Foundations", "T23": "Private Operating Foundations", "T30": "Public Foundations", "T31": "Community Foundations", "T40": "Voluntarism Promotion", "T50": "Philanthropy, Charity & Voluntarism Promotion", "T70": "Federated Giving Programs", "T90": "Named Trusts N.E.C.", "T99": "Philanthropy, Voluntarism & Grantmaking Foundations N.E.C.", "U01": "Alliances & Advocacy", "U02": "Management & Technical Assistance", "U03": "Professional Societies & Associations", "U05": "Research Institutes & Public Policy Analysis", "U11": "Single Organization Support", "U12": "Fund Raising & Fund Distribution", "U19": "Support N.E.C.", "U20": "General Science", "U21": "Marine Science & Oceanography", "U30": "Physical & Earth Sciences", "U31": "Astronomy", "U33": "Chemistry & Chemical Engineering", "U34": "Mathematics", "U36": "Geology", "U40": "Engineering & Technology", "U41": "Computer Science", "U42": "Engineering", "U50": "Biological & Life Sciences", "U99": "Science & Technology N.E.C.", "V01": "Alliances & Advocacy", "V02": "Management & Technical Assistance", "V03": "Professional Societies & Associations", "V05": "Research Institutes & Public Policy Analysis", "V11": "Single Organization Support", "V12": "Fund Raising & Fund Distribution", "V19": "Support N.E.C.", "V20": "Social Science", "V21": "Anthropology & Sociology", "V22": "Economics", "V23": "Behavioral Science", "V24": "Political Science", "V25": "Population Studies", "V26": "Law & Jurisprudence", "V30": "Interdisciplinary Research", "V31": "Black Studies", "V32": "Womens Studies", "V33": "Ethnic Studies", "V34": "Urban Studies", "V35": "International Studies", "V36": "Gerontology", "V37": "Labor Studies", "V99": "Social Science N.E.C.", "W01": "Alliances & Advocacy", "W02": "Management & Technical Assistance", "W03": "Professional Societies & Associations", "W05": "Research Institutes & Public Policy Analysis", "W11": "Single Organization Support", "W12": "Fund Raising & Fund Distribution", "W19": "Support N.E.C.", "W20": "Government & Public Administration", "W22": "Public Finance, Taxation & Monetary Policy", "W24": "Citizen Participation", "W30": "Military & Veterans Organizations", "W40": "Public Transportation Systems", "W50": "Telecommunications", "W60": "Financial Institutions", "W61": "Credit Unions", "W70": "Leadership Development", "W80": "Public Utilities", "W90": "Consumer Protection", "W99": "Public & Societal Benefit N.E.C.", "X01": "Alliances & Advocacy", "X02": "Management & Technical Assistance", "X03": "Professional Societies & Associations", "X05": "Research Institutes & Public Policy Analysis", "X11": "Single Organization Support", "X12": "Fund Raising & Fund Distribution", "X19": "Support N.E.C.", "X20": "Christianity", "X21": "Protestant", "X22": "Roman Catholic", "X30": "Judaism", "X40": "Islam", "X50": "Buddhism", "X70": "Hinduism", "X80": "Religious Media & Communications", "X81": "Religious Film & Video", "X82": "Religious Television", "X83": "Religious Printing & Publishing", "X84": "Religious Radio", "X90": "Interfaith Coalitions", "X99": "Religion-Related N.E.C.", "Y01": "Alliances & Advocacy", "Y02": "Management & Technical Assistance", "Y03": "Professional Societies & Associations", "Y05": "Research Institutes & Public Policy Analysis", "Y11": "Single Organization Support", "Y12": "Fund Raising & Fund Distribution", "Y19": "Support N.E.C.", "Y20": "Insurance Providers", "Y22": "Local Benevolent Life Insurance Associations", "Y23": "Mutual Insurance Companies & Associations", "Y24": "Supplemental Unemployment Compensation", "Y25": "State-Sponsored Workers Compensation Reinsurance Organizations", "Y30": "Pension & Retirement Funds", "Y33": "Teachers Retirement Fund Associations", "Y34": "Employee Funded Pension Trusts", "Y35": "Multi-Employer Pension Plans", "Y40": "Fraternal Societies", "Y41": "Fraternal Beneficiary Societies", "Y42": "Domestic Fraternal Societies", "Y43": "Voluntary Employees Beneficiary Associations (Non-Government)", "Y44": "Voluntary Employees Beneficiary Associations Government)", "Y50": "Cemeteries", "Y99": "Mutual & Membership Benefit N.E.C.", "Z99": "Unknown"};
+  var _majorDesc={}, _codeDesc={};
+  Object.keys(NTEE_MAJOR).forEach(function(k){_majorDesc[NTEE_MAJOR[k].toLowerCase()]=1;});
+  Object.keys(NTEE_CODES).forEach(function(k){_codeDesc[NTEE_CODES[k].toLowerCase()]=1;});
+  function classifyNtee(val, mapKind){
+    var v=String(val).trim(); var up=v.toUpperCase();
+    var CODES = mapKind==="major"? NTEE_MAJOR : NTEE_CODES;
+    var DESC  = mapKind==="major"? _majorDesc : _codeDesc;
+    if(Object.prototype.hasOwnProperty.call(CODES,up)) return {kind:"code",suggest:CODES[up]};
+    if(DESC[v.toLowerCase()]) return {kind:"ok"};
+    return {kind:"unknown"};
+  }
+  // auto-convert NTEE code-form values to explained form, in place.
+  // stores a trace of the original code on rec.__nteeFrom so the UI can show "(from CODE)".
+  function autoConvertNtee(rec){
+    if(!rec||typeof rec!=="object") return 0;
+    var n=0; rec.__nteeFrom=rec.__nteeFrom||{};
+    [["areaOfInterest","major"],["subAreaOfInterest","sub"]].forEach(function(pair){
+      var key=pair[0], map=pair[1], arr=rec[key];
+      if(!Array.isArray(arr)) return;
+      rec[key]=arr.map(function(x){ var c=classifyNtee(x,map); if(c.kind==="code"){ n++; rec.__nteeFrom[c.suggest]=String(x); return c.suggest; } return x; });
+    });
+    return n;
+  }
+
+  // ============ known value sets (from the form + observed in real data) ============
+  var STATUS=["open","closed","forecasted"];
+  var CURRENCY=["usd","rsd","cad","gbp","eur","aud"];           // observed usd/rsd; common ones added — soft check
+  var FUNDING_PERIOD=["1-year","2-years","3-years","4-years","5-years","less-than-1-year","yearly-recurring","non-specified"];
+  var CURRENT_STAGE=["pre-application","application"];          // hard
+  var PARENT_MECH=["Operating and Organizational Support","Project and Program Support","Capital and Infrastructure",
+    "Financial Mechanisms","Individual and Scholarship Support","Partnerships and Field-Building",
+    "Non-Cash and In-Kind Support","Other"];                   // hard
+  var DATE_FIELDS=["openingDate","registrationDeadline","webinarDate","loiDeadline","loiDecisionDate","invitationToApply",
+    "briefingSessionDate","proposalQaBegins","proposalQaCloses","answersToQuestionsReleased","applicationDeadline",
+    "postmarkDate","internalReviewStart","internalReviewEnd","boardMeetingDate","siteVisits","applicationStatusDate",
+    "followUpOpen","followUpClose","awardNotificationDate","notificationDate","grantAgreementSignatureDate",
+    "fundsDisbursed","programStartDate","interimReportDue","programEndDate","finalReportDue"];
+
+  // ============ schema (keys match the real JSON) ============
+  // t: text|longtext|number|bool|list|enum|url|email  · opts+hard for enums · maxWords hard rule
+  var SECTIONS=[
+    { name:"Core", fields:[
+      {k:"title",t:"text"},{k:"funder",t:"text"},
+      {k:"status",t:"enum",opts:STATUS,hard:false},
+      {k:"currency",t:"enum",opts:CURRENCY,hard:false},
+      {k:"fundingAmountHigh",t:"number"},{k:"fundingAmountLow",t:"number"},
+      {k:"fundingPeriod",t:"enum",opts:FUNDING_PERIOD,hard:false},
+      {k:"currentStage",t:"enum",opts:CURRENT_STAGE,hard:true},
+      {k:"cycleName",t:"text"},{k:"cycleIdentifierId",t:"text"},
+      {k:"fundingTierName",t:"text"},{k:"fundingTierIdentifier",t:"text"},
+    ]},
+    { name:"Classification", fields:[
+      {k:"for",t:"list"},{k:"beneficiaries",t:"text"},{k:"keywords",t:"list"},
+      {k:"areaOfInterest",t:"ntee",map:"major"},{k:"subAreaOfInterest",t:"ntee",map:"sub"},
+      {k:"areasOfFocus",t:"list"},{k:"fundingVehicles",t:"list"},
+      {k:"regions",t:"list"},{k:"countries",t:"list"},{k:"states",t:"list"},
+      {k:"counties",t:"list"},{k:"cities",t:"list"},
+    ]},
+    { name:"Links", fields:[
+      {k:"mainOpportunityLink",t:"url"},{k:"applicationLink",t:"url"},
+      {k:"registrationLink",t:"url"},{k:"supportingUrls",t:"list"},
+    ]},
+    { name:"Narrative text", fields:[
+      {k:"summary",t:"longtext",maxWords:300,req:true},{k:"eligibility",t:"longtext",req:true},{k:"howToApply",t:"longtext"},
+    ]},
+    { name:"Flags", fields:[
+      {k:"isMultiAreaOpportunity",t:"bool",req:true},{k:"isInviteOnly",t:"bool",req:true},{k:"smallBusinessSetAside",t:"bool",req:true},
+      {k:"isAdministeredFunding",t:"bool"},{k:"isRollingOpportunity",t:"bool",req:true},{k:"isContactFunderOpportunity",t:"bool",req:true},
+      {k:"forceClosed",t:"bool"},{k:"areStatesExplicit",t:"bool"},
+      {k:"isCountryExists",t:"bool"},{k:"isStateExists",t:"bool"},{k:"isCountyExists",t:"bool"},{k:"isCityExists",t:"bool"},
+    ]},
+  ];
+  var SYSTEM_FIELDS=[
+    {k:"_id",t:"id"},{k:"__v",t:"number"},{k:"createdBy",t:"id"},{k:"funderOrganization",t:"id"},
+    {k:"opportunitySlug",t:"text"},{k:"funderSlug",t:"text"},
+    {k:"funderUpdatedAt",t:"any"},{k:"funderPostedDate",t:"any"},
+  ];
+  var CONTACT_FIELDS=[
+    {k:"name",t:"text"},{k:"designation",t:"text"},{k:"telephone",t:"text"},{k:"email",t:"email"},{k:"mailingAddress",t:"text"},
+  ];
+  var STAGE_FIELDS=[
+    {k:"name",t:"text"},{k:"dateCategory",t:"enum",opts:DATE_FIELDS,hard:false},
+    {k:"isStageApplicable",t:"bool"},{k:"isTemplateExplicit",t:"bool"},
+    {k:"template",t:"longtext"},{k:"solicitationLinks",t:"linklist"},{k:"additionalLinks",t:"linklist"},
+  ];
+
+  // ============ helpers ============
+  function isObj(v){return v!==null&&typeof v==="object"&&!Array.isArray(v);}
+  function isEmpty(v){
+    if(v===null||v===undefined)return true;
+    if(typeof v==="string")return v.trim()==="";
+    if(Array.isArray(v))return v.length===0;
+    if(isObj(v))return Object.keys(v).length===0;
+    return false;
+  }
+  function jstype(v){if(v===null)return"null";if(Array.isArray(v))return"list";return typeof v;}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function wc(s){return s&&s.trim()?s.trim().split(/\s+/).length:0;}
+
+  // validate a single scalar/leaf field. required = key must exist.
+  // returns {status:valid|empty|missing|error|sysempty, msg}
+  function validate(def, present, value, opts){
+    opts=opts||{};
+    var required = def.req && !opts.system;
+    if(!present){
+      if(required) return {status:"error", msg:"required field is missing"};
+      return {status: opts.system?"sysempty":"empty", msg:"key not in record"};
+    }
+    if(isEmpty(value)){
+      if(required) return {status:"error", msg:"required field is empty"};
+      return {status: opts.system?"sysempty":"empty", msg:"present but empty"};
+    }
+    switch(def.t){
+      case"bool": return typeof value==="boolean"?ok():err("expected true/false, got "+jstype(value));
+      case"number": return typeof value==="number"?ok():(typeof value==="string"&&!isNaN(Number(value))?ok("numeric text"):err("expected number, got "+jstype(value)));
+      case"list": return Array.isArray(value)?ok():err("expected a list, got "+jstype(value));
+      case"linklist": return Array.isArray(value)?ok():err("expected a list, got "+jstype(value));
+      case"ntee":
+        if(!Array.isArray(value)) return err("expected a list, got "+jstype(value));
+        var _it=value.map(function(x){var c=classifyNtee(x,def.map);return {value:x,kind:c.kind,suggest:c.suggest};});
+        var _nu=_it.filter(function(i){return i.kind==="unknown";}).length;
+        var _r = _nu>0 ? warn(_nu+" value(s) not recognized as NTEE areas — verify") : ok();
+        _r.nitems=_it; return _r;
+      case"enum":
+        if(typeof value!=="string") return err("expected text, got "+jstype(value));
+        if(!def.opts) return ok(); // no fixed option list for this field — accept any text
+        var hit=def.opts.some(function(o){return o.toLowerCase()===value.toLowerCase();});
+        if(!hit) return def.hard?err("‘"+value+"’ not an allowed value"):warn("‘"+value+"’ not in known list — verify");
+        return ok();
+      case"email": return (typeof value==="string"&&/.+@.+\..+/.test(value))?ok():err("doesn't look like an email");
+      case"url": return typeof value==="string"?(/^https?:\/\//i.test(value.trim())?ok():ok("no http(s) prefix")):err("expected a URL string");
+      case"longtext": case"text":
+        if(typeof value!=="string") return err("expected text, got "+jstype(value));
+        if(def.maxWords&&wc(value)>def.maxWords) return err("over "+def.maxWords+" words ("+wc(value)+")");
+        return ok();
+      case"id": return ok();
+      case"any": return ok();
+      default: return ok();
+    }
+    function ok(m){return{status:"valid",msg:m||""};}
+    function err(m){return{status:"error",msg:m};}
+    function warn(m){return{status:"error",msg:m,soft:true};} // soft -> shown as warn, counts as review not fail
+  }
+
+  // ============ state ============
+  var input=document.getElementById("input"),form=document.getElementById("form"),
+      summary=document.getElementById("summary"),verdict=document.getElementById("verdict"),
+      filterRow=document.getElementById("filterRow"),exportRow=document.getElementById("exportRow"),
+      parseErr=document.getElementById("parseErr"),search=document.getElementById("search"),
+      onlyProblems=document.getElementById("onlyProblems"),nav=document.getElementById("nav"),
+      recSel=document.getElementById("recSel"),recCount=document.getElementById("recCount"),
+      batch=document.getElementById("batch"),batchBody=document.getElementById("batchBody");
+  var records=[], idx=0, rows=[];
+
+  function run(){
+    parseErr.style.display="none";
+    var d; try{ d=JSON.parse(input.value); }
+    catch(e){ parseErr.textContent="Invalid JSON: "+e.message; parseErr.style.display="block"; return; }
+    loadData(d);
+  }
+  function loadData(d){
+    parseErr.style.display="none";
+    if(Array.isArray(d)) records=d; else if(isObj(d)) records=[d];
+    else{ parseErr.textContent="Expected a JSON object or an array of objects."; parseErr.style.display="block"; return; }
+    window.__totalConv=0; records.forEach(function(r){ window.__totalConv+=autoConvertNtee(r); });
+    idx=0;
+    setupNav();
+    exportRow.style.display="flex"; filterRow.style.display="flex";
+    document.getElementById("downloadAllBtn").style.display = records.length>1?"":"none";
+    renderRecord();
+    if(records.length>1) batchPlaceholder(); else { batch.style.display="none"; }
+    setSidebar(false); // auto-collapse so QA gets full width; toggle in header reopens it
+  }
+
+  function setupNav(){
+    if(records.length<=1){ nav.style.display="none"; return; }
+    nav.style.display="flex";
+    if(records.length>300){
+      recSel.style.display="none";
+      if(!window.__goInput){
+        var gi=document.createElement("input"); gi.type="number"; gi.min=1; gi.id="goInput";
+        gi.style.cssText="width:96px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-size:13px";
+        gi.title="Go to record #";
+        recSel.parentNode.insertBefore(gi, recSel.nextSibling);
+        gi.onchange=function(){ var n=Math.min(records.length,Math.max(1,Number(gi.value)||1)); idx=n-1; renderRecord(); };
+        window.__goInput=gi;
+      }
+      window.__goInput.style.display=""; window.__goInput.max=records.length; window.__goInput.value=idx+1;
+    } else {
+      recSel.style.display=""; if(window.__goInput) window.__goInput.style.display="none";
+      recSel.innerHTML="";
+      var frag=document.createDocumentFragment();
+      records.forEach(function(r,i){ var o=document.createElement("option"); o.value=i; o.textContent="#"+(i+1)+" — "+(r.title?String(r.title).slice(0,50):"(no title)"); frag.appendChild(o); });
+      recSel.appendChild(frag);
+    }
+  }
+
+  function auditRecord(rec){
+    // returns {counts, rowsData:[{def,present,value,res,path,container,key,section}], extras:[], stages, dueDate, mech, contact}
+    var counts={valid:0,empty:0,missing:0,error:0,sysempty:0,soft:0};
+    var used={};
+    var out={counts:counts, groups:[], extras:[]};
+    function tally(res){
+      if(res.soft){counts.soft++; counts.valid++;} // soft warnings don't fail; count toward "valid but verify"
+      else counts[res.status]++;
+    }
+    SECTIONS.forEach(function(sec){
+      var g={name:sec.name, items:[]};
+      sec.fields.forEach(function(def){
+        var present=Object.prototype.hasOwnProperty.call(rec,def.k);
+        if(present) used[def.k]=true;
+        var value=rec[def.k];
+        var res=validate(def,present,value);
+        tally(res);
+        g.items.push({def:def,present:present,value:value,res:res,container:rec,key:def.k});
+      });
+      out.groups.push(g);
+    });
+    // contact
+    var ci=rec.contactInformation; used.contactInformation=true;
+    out.contact={present:Object.prototype.hasOwnProperty.call(rec,"contactInformation"),obj:ci,items:[]};
+    if(isObj(ci)){
+      CONTACT_FIELDS.forEach(function(def){
+        var present=Object.prototype.hasOwnProperty.call(ci,def.k);
+        var value=ci[def.k]; var res=validate(def,present,value); tally(res);
+        out.contact.items.push({def:def,present:present,value:value,res:res,container:ci,key:def.k});
+      });
+    } else { counts.missing++; }
+    // dueDate
+    used.dueDate=true;
+    out.dueDate={present:Object.prototype.hasOwnProperty.call(rec,"dueDate"),obj:rec.dueDate,items:[]};
+    if(isObj(rec.dueDate)){
+      Object.keys(rec.dueDate).forEach(function(fn){
+        var de=rec.dueDate[fn];
+        var known=DATE_FIELDS.indexOf(fn)!==-1;
+        var problems=[];
+        if(!isObj(de)) problems.push("not a date object");
+        else{
+          if(!de.date||(!de.date.$date&&typeof de.date!=="string")) problems.push("no date value");
+          if(typeof de.isDayExplicit!=="boolean") problems.push("isDayExplicit not true/false");
+          if(typeof de.isYearExplicit!=="boolean") problems.push("isYearExplicit not true/false");
+        }
+        var res= problems.length? {status:"error",msg:problems.join("; ")} : (known?{status:"valid",msg:""}:{status:"error",msg:"‘"+fn+"’ not a known date field",soft:true});
+        tally(res);
+        out.dueDate.items.push({fieldName:fn,entry:de,res:res});
+      });
+    }
+    // fundingMechanism
+    used.fundingMechanism=true;
+    out.mech={present:Object.prototype.hasOwnProperty.call(rec,"fundingMechanism"),arr:rec.fundingMechanism,rows:[]};
+    if(Array.isArray(rec.fundingMechanism)){
+      rec.fundingMechanism.forEach(function(fm,i){
+        var pDef={k:"parentFundingMechanism",t:"enum",opts:PARENT_MECH,hard:true};
+        var pPresent=Object.prototype.hasOwnProperty.call(fm,"parentFundingMechanism");
+        var pRes=validate(pDef,pPresent,fm.parentFundingMechanism); tally(pRes);
+        var sPresent=Object.prototype.hasOwnProperty.call(fm,"subFundingMechanism");
+        var sRes=validate({k:"subFundingMechanism",t:"list"},sPresent,fm.subFundingMechanism); tally(sRes);
+        out.mech.rows.push({i:i,fm:fm,pRes:pRes,sRes:sRes});
+      });
+    }
+    // stages
+    used.stages=true;
+    out.stages={present:Object.prototype.hasOwnProperty.call(rec,"stages"),arr:rec.stages,cards:[]};
+    if(Array.isArray(rec.stages)){
+      rec.stages.forEach(function(st,i){
+        var items=[];
+        STAGE_FIELDS.forEach(function(def){
+          var present=isObj(st)&&Object.prototype.hasOwnProperty.call(st,def.k);
+          var value=isObj(st)?st[def.k]:undefined;
+          var res=validate(def,present,value); tally(res);
+          items.push({def:def,present:present,value:value,res:res,container:st,key:def.k});
+        });
+        out.stages.cards.push({i:i,st:st,items:items});
+      });
+    }
+    // system
+    var g2={name:"System (auto-generated)", items:[], system:true};
+    SYSTEM_FIELDS.forEach(function(def){
+      var present=Object.prototype.hasOwnProperty.call(rec,def.k); if(present) used[def.k]=true;
+      var res=validate(def,present,rec[def.k],{system:true}); tally(res);
+      g2.items.push({def:def,present:present,value:rec[def.k],res:res,container:rec,key:def.k});
+    });
+    out.groups.push(g2);
+    // extras
+    out.extras=Object.keys(rec).filter(function(k){return !used[k] && k.indexOf("__")!==0;});
+    return out;
+  }
+
+  // ====================================================================
+  // SCHEMA AUTO-DETECTION
+  // Legacy (flat) records keep dates in rec.dueDate and funding/status at top level.
+  // New (cycle-based) records nest them: rec.cycles[].dueDate, rec.cycles[].fundingTiers[],
+  // and cycle-level status/howToApply/cycleName/isRollingOpportunity/forceClosed.
+  // The tool detects which shape each record uses and populates accordingly.
+  // ====================================================================
+  function isCycleBased(rec){ return isObj(rec) && Array.isArray(rec.cycles); }
+
+  var NEW_SECTIONS=[
+    { name:"Core", fields:[
+      {k:"title",t:"text"},{k:"funder",t:"text"},{k:"jobType",t:"enum",opts:null},
+    ]},
+    { name:"Classification", fields:[
+      {k:"for",t:"list"},{k:"beneficiaries",t:"text"},
+      {k:"areaOfInterest",t:"ntee",map:"major"},{k:"subAreaOfInterest",t:"ntee",map:"sub"},
+      {k:"areasOfFocus",t:"list"},{k:"fundingVehicles",t:"list"},
+    ]},
+    { name:"Narrative text", fields:[
+      {k:"summary",t:"longtext",maxWords:300,req:true},{k:"eligibility",t:"longtext",req:true},
+    ]},
+    { name:"Links", fields:[ {k:"mainOpportunityLink",t:"url"} ]},
+    { name:"Flags", fields:[
+      {k:"isMultiAreaOpportunity",t:"bool",req:true},{k:"isInviteOnly",t:"bool",req:true},
+      {k:"smallBusinessSetAside",t:"bool",req:true},{k:"isContactFunderOpportunity",t:"bool",req:true},
+    ]},
+    { name:"CMS", fields:[
+      {k:"cmsStatus",t:"enum",opts:null},{k:"effectiveDate",t:"date"},
+    ]},
+  ];
+  var CYCLE_FIELDS=[
+    {k:"cycleName",t:"text"},
+    {k:"status",t:"enum",opts:STATUS,hard:false},
+    {k:"isRollingOpportunity",t:"bool",req:true},
+    {k:"forceClosed",t:"bool"},
+    {k:"howToApply",t:"longtext"},
+  ];
+  var TIER_FIELDS=[
+    {k:"fundingAmountHigh",t:"number"},{k:"fundingAmountLow",t:"number"},
+    {k:"currency",t:"enum",opts:CURRENCY,hard:false},
+    {k:"fundingPeriod",t:"enum",opts:FUNDING_PERIOD,hard:false},
+    {k:"fundingTierName",t:"text"},{k:"fundingTierIdentifier",t:"text"},
+  ];
+  var NEW_SYSTEM=["_id","funderOrganization","funderSlug","createdAt","updatedAt"];
+
+  function tallyInto(c,res,system){
+    if(res.soft){ c.valid++; return; }
+    if(system && res.status==="empty"){ return; }
+    if(res.status==="error")c.error++;
+    else if(res.status==="missing")c.missing++;
+    else if(res.status==="empty")c.empty++;
+    else c.valid++;
+  }
+  // validate a date-object entry (shared shape in both schemas)
+  function dateEntryRes(de){
+    if(!isObj(de)) return {status:"error",msg:"not a date object"};
+    var probs=[];
+    if(!de.date) probs.push("no date value");
+    if(typeof de.isDayExplicit!=="boolean") probs.push("isDayExplicit not true/false");
+    if(typeof de.isYearExplicit!=="boolean") probs.push("isYearExplicit not true/false");
+    return probs.length?{status:"error",msg:probs.join("; ")}:{status:"valid",msg:""};
+  }
+
+  // ---- quick verdict counts for a cycle-based record (batch overview) ----
+  function quickCountsCycle(rec){
+    var c={error:0,missing:0,empty:0};
+    function t(res){ if(res.soft)return; if(res.status==="error")c.error++; else if(res.status==="missing")c.missing++; else if(res.status==="empty")c.empty++; }
+    NEW_SECTIONS.forEach(function(sec){ sec.fields.forEach(function(def){ t(validate(def,Object.prototype.hasOwnProperty.call(rec,def.k),rec[def.k])); }); });
+    var ci=rec.contactInformation;
+    if(isObj(ci)) CONTACT_FIELDS.forEach(function(def){ t(validate(def,Object.prototype.hasOwnProperty.call(ci,def.k),ci[def.k])); }); else c.missing++;
+    if(Array.isArray(rec.stages)) rec.stages.forEach(function(st){ STAGE_FIELDS.forEach(function(def){ t(validate(def, isObj(st)&&Object.prototype.hasOwnProperty.call(st,def.k), isObj(st)?st[def.k]:undefined)); }); });
+    if(Array.isArray(rec.cycles) && rec.cycles.length){
+      rec.cycles.forEach(function(cy){
+        CYCLE_FIELDS.forEach(function(def){ t(validate(def,Object.prototype.hasOwnProperty.call(cy,def.k),cy[def.k])); });
+        if(Array.isArray(cy.fundingTiers)&&cy.fundingTiers.length) cy.fundingTiers.forEach(function(ti){ TIER_FIELDS.forEach(function(def){ t(validate(def,Object.prototype.hasOwnProperty.call(ti,def.k),ti[def.k])); }); });
+        else c.error++;
+        if(isObj(cy.dueDate)) Object.keys(cy.dueDate).forEach(function(fn){ var de=cy.dueDate[fn]; if(isObj(de)&&de.date){ var r=dateEntryRes(de); if(r.status==="error")c.error++; } });
+      });
+    } else c.error++;
+    NEW_SYSTEM.forEach(function(k){ if(!Object.prototype.hasOwnProperty.call(rec,k))c.missing++; });
+    c.error += crossFieldIssues(rec).length;
+    return c;
+  }
+
+  // ---- full render for a cycle-based record ----
+  function renderCycleBased(rec){
+    rows=[];
+    var F=document.createDocumentFragment();
+    var counts={valid:0,empty:0,missing:0,error:0};
+    var used={};
+
+    var banner=document.createElement("div"); banner.className="note";
+    banner.style.cssText="font-size:11.5px;color:var(--acc-ink);padding:0 2px 10px";
+    banner.textContent="Detected: cycle-based schema — dates & funding read from cycles[].";
+    F.appendChild(banner);
+
+    function sect(t,hint){ var h=document.createElement("div"); h.className="sect"; h.innerHTML="<span>"+esc(t)+"</span>"+(hint?'<span class="hint">'+esc(hint)+'</span>':''); F.appendChild(h); }
+    function note(msg,kind){ var d=document.createElement("div"); d.className="note"; d.style.padding="2px 10px 8px"; if(kind==="error")d.style.color="var(--err)"; else if(kind==="empty")d.style.color="var(--rev)"; d.textContent=msg; F.appendChild(d); }
+    function fieldRow(def,container,key,system,mount){
+      var kk=key!==undefined?key:def.k;
+      var present=isObj(container)&&Object.prototype.hasOwnProperty.call(container,kk);
+      var value=isObj(container)?container[kk]:undefined;
+      var res=validate(def,present,value);
+      tallyInto(counts,res,system);
+      (mount||F).appendChild(buildRow({def:def,present:present,value:value,res:res,container:container,key:kk},system));
+    }
+
+    // top-level common sections
+    NEW_SECTIONS.forEach(function(g){
+      sect(g.name);
+      g.fields.forEach(function(def){ used[def.k]=1; fieldRow(def,rec); });
+    });
+
+    // contact
+    sect("Contact information");
+    used.contactInformation=1;
+    if(isObj(rec.contactInformation)) CONTACT_FIELDS.forEach(function(def){ fieldRow(def,rec.contactInformation); });
+    else { note("contactInformation is missing or not an object.","error"); counts.missing++; }
+
+    // stages
+    sect("Stages", Array.isArray(rec.stages)&&rec.stages.length?rec.stages.length+" stage(s)":"");
+    used.stages=1;
+    if(!Array.isArray(rec.stages)) note("stages is missing or not a list.","error");
+    else if(!rec.stages.length) note("stages is present but empty.","empty");
+    else rec.stages.forEach(function(st,i){
+      var card=document.createElement("div"); card.className="card";
+      card.innerHTML='<div class="card-t">Stage '+(i+1)+(isObj(st)&&st.name?" — "+esc(st.name):"")+'</div>';
+      STAGE_FIELDS.forEach(function(def){ fieldRow(def,st,undefined,false,card); });
+      F.appendChild(card);
+    });
+
+    // cycles
+    used.cycles=1;
+    if(!Array.isArray(rec.cycles)||!rec.cycles.length){ sect("Cycles"); note("cycles is missing or empty.","error"); counts.error++; }
+    else rec.cycles.forEach(function(cy,ci){
+      sect("Cycle "+(ci+1)+(isObj(cy)&&cy.cycleName?" — "+cy.cycleName:""));
+      CYCLE_FIELDS.forEach(function(def){ fieldRow(def,cy); });
+      // funding tiers
+      if(Array.isArray(cy.fundingTiers)&&cy.fundingTiers.length){
+        cy.fundingTiers.forEach(function(ti,ti2){
+          var card=document.createElement("div"); card.className="card";
+          card.innerHTML='<div class="card-t">Funding tier '+(ti2+1)+(isObj(ti)&&ti.fundingTierName?" — "+esc(ti.fundingTierName):"")+'</div>';
+          TIER_FIELDS.forEach(function(def){ fieldRow(def,ti,undefined,false,card); });
+          F.appendChild(card);
+        });
+      } else { note("fundingTiers missing/empty in this cycle.","error"); counts.error++; }
+      // dates (only populated ones; nulls are allowed and hidden)
+      var dd=cy.dueDate, pop=[];
+      if(isObj(dd)) Object.keys(dd).forEach(function(fn){ var de=dd[fn]; if(isObj(de)&&de.date) pop.push({fn:fn,de:de}); });
+      sect("Dates — cycle "+(ci+1), pop.length+" date(s) set");
+      if(!isObj(dd)) note("dueDate missing/not an object in this cycle.","error");
+      else if(!pop.length) note("No dates set in this cycle (allowed).","empty");
+      else pop.forEach(function(p){ var r=dateEntryRes(p.de); tallyInto(counts,r,false); F.appendChild(buildDateRow({fieldName:p.fn,entry:p.de,res:r})); });
+    });
+
+    // system
+    sect("System (auto-generated)", "present-check only; empties ignored");
+    NEW_SYSTEM.forEach(function(k){ used[k]=1; fieldRow({k:k,t:(k==="_id"||k==="funderOrganization"?"id":"any")},rec,k,true); });
+
+    // extras
+    var extras=Object.keys(rec).filter(function(k){ return !used[k] && k.indexOf("__")!==0; });
+    if(extras.length){
+      var box=document.createElement("div"); box.className="extra-box";
+      box.innerHTML="<b>"+extras.length+" field(s) not in the schema:</b><br>"+extras.map(function(k){return "<code>"+esc(k)+"</code>";}).join("");
+      F.appendChild(box);
+    }
+
+    counts.error += renderCrossChecks(rec, F);
+    form.replaceChildren(F);
+    drawVerdict(counts, extras.length);
+    drawSummary(counts);
+    applyFilter();
+  }
+
+  // ---- cross-field logic checks (contradictions between fields) ----
+  function _parseDate(entry){
+    if(!isObj(entry)||!entry.date) return null;
+    var s = isObj(entry.date)? entry.date.$date : entry.date;
+    var d=new Date(s); return isNaN(d.getTime())?null:d;
+  }
+  function _containers(rec){
+    if(isCycleBased(rec)) return (rec.cycles||[]).map(function(cy,i){ return {tag:"cycle "+(i+1)+": ", dd:cy.dueDate, status:cy.status, rolling:cy.isRollingOpportunity, tiers:Array.isArray(cy.fundingTiers)?cy.fundingTiers:[]}; });
+    return [{tag:"", dd:rec.dueDate, status:rec.status, rolling:rec.isRollingOpportunity, tiers:[{fundingAmountLow:rec.fundingAmountLow,fundingAmountHigh:rec.fundingAmountHigh}]}];
+  }
+  function crossFieldIssues(rec){
+    var out=[]; var today=new Date(); today.setHours(0,0,0,0);
+    _containers(rec).forEach(function(c){
+      c.tiers.forEach(function(ti,ti2){
+        var lo=ti&&ti.fundingAmountLow, hi=ti&&ti.fundingAmountHigh;
+        if(typeof lo==="number"&&typeof hi==="number"&&hi>0&&lo>hi)
+          out.push(c.tag+"funding min ("+lo+") is greater than max ("+hi+")"+(c.tiers.length>1?" [tier "+(ti2+1)+"]":""));
+      });
+      var opening=isObj(c.dd)?_parseDate(c.dd.openingDate):null;
+      var deadline=isObj(c.dd)?_parseDate(c.dd.applicationDeadline):null;
+      if(opening&&deadline&&deadline<opening) out.push(c.tag+"application deadline is before the opening date");
+      var st=(typeof c.status==="string")?c.status.toLowerCase():"";
+      if(st==="open"&&deadline&&deadline<today) out.push(c.tag+"status is \u2018open\u2019 but the application deadline has already passed");
+      if(c.rolling===true&&deadline) out.push(c.tag+"marked rolling, but a fixed application deadline is set");
+    });
+    return out;
+  }
+  // render a cross-field section into a fragment; returns number of issues (each an error)
+  function renderCrossChecks(rec, F){
+    var issues=crossFieldIssues(rec);
+    var h=document.createElement("div"); h.className="sect";
+    h.innerHTML="<span>Cross-field checks</span><span class='hint'>contradictions between fields</span>";
+    F.appendChild(h);
+    if(!issues.length){ var okn=document.createElement("div"); okn.className="note"; okn.style.cssText="padding:2px 10px 8px;color:var(--ok)"; okn.textContent="No contradictions found."; F.appendChild(okn); return 0; }
+    issues.forEach(function(m){ var n=document.createElement("div"); n.className="note"; n.style.cssText="padding:2px 10px 8px;color:var(--err);font-weight:600"; n.textContent="\u2717 "+m; F.appendChild(n); });
+    return issues.length;
+  }
+
+  function verdictOf(c){
+    if(c.error>0) return "fail";
+    if(c.empty>0||c.missing>0) return "review";
+    return "pass";
+  }
+
+  function renderRecord(){
+    rows=[];
+    var rec=records[idx];
+    if(records.length>1){ if(recSel.options.length)recSel.value=idx; if(window.__goInput)window.__goInput.value=idx+1; recCount.textContent="Record "+(idx+1)+" of "+records.length; }
+    if(isCycleBased(rec)){ renderCycleBased(rec); return; }
+    var a=auditRecord(rec);
+    // Build the whole record off-screen in a fragment, then insert once — one reflow
+    // instead of ~100. This is what keeps loading and paging instant.
+    var F=document.createDocumentFragment();
+
+    a.groups.forEach(function(g){
+      var h=document.createElement("div"); h.className="sect";
+      h.innerHTML="<span>"+esc(g.name)+"</span>"+(g.system?'<span class="hint">present-check only; empties ignored</span>':'');
+      F.appendChild(h);
+      g.items.forEach(function(it){ F.appendChild(buildRow(it, g.system)); });
+    });
+
+    sectionHead("Contact information");
+    if(a.contact.items.length){ a.contact.items.forEach(function(it){ F.appendChild(buildRow(it)); }); }
+    else { note("contactInformation is missing or not an object.","error"); a.counts.error++; }
+
+    sectionHead("Funding mechanism", a.mech.arr&&a.mech.arr.length?a.mech.arr.length+" mechanism(s)":"");
+    if(Array.isArray(a.mech.arr)){
+      if(!a.mech.arr.length) note("fundingMechanism is present but empty.","empty");
+      a.mech.rows.forEach(function(r){
+        var card=document.createElement("div"); card.className="card";
+        card.innerHTML='<div class="card-t">Mechanism '+(r.i+1)+'</div>';
+        card.appendChild(buildRow({def:{k:"parentFundingMechanism",t:"enum",opts:PARENT_MECH,hard:true},present:true,value:r.fm.parentFundingMechanism,res:r.pRes,container:r.fm,key:"parentFundingMechanism"}));
+        card.appendChild(buildRow({def:{k:"subFundingMechanism",t:"list"},present:true,value:r.fm.subFundingMechanism,res:r.sRes,container:r.fm,key:"subFundingMechanism"}));
+        F.appendChild(card);
+      });
+    } else note("fundingMechanism is missing or not a list.","error");
+
+    sectionHead("Dates (dueDate)", (a.dueDate.items.length||0)+" date(s) present");
+    if(!isObj(a.dueDate.obj)) note("dueDate is missing or not an object.","error");
+    else if(!a.dueDate.items.length) note("No dates recorded for this opportunity (this is common and allowed).","empty");
+    else a.dueDate.items.forEach(function(d){ F.appendChild(buildDateRow(d)); });
+
+    sectionHead("Stages", a.stages.arr&&a.stages.arr.length?a.stages.arr.length+" stage(s)":"");
+    if(!Array.isArray(a.stages.arr)) note("stages is missing or not a list.","error");
+    else if(!a.stages.arr.length) note("stages is present but empty (0 stages).","empty");
+    else a.stages.cards.forEach(function(c){
+      var card=document.createElement("div"); card.className="card";
+      card.innerHTML='<div class="card-t">Stage '+(c.i+1)+(c.st&&c.st.name?" — "+esc(c.st.name):"")+'</div>';
+      c.items.forEach(function(it){ card.appendChild(buildRow(it)); });
+      F.appendChild(card);
+    });
+
+    if(a.extras.length){
+      var box=document.createElement("div"); box.className="extra-box";
+      box.innerHTML="<b>"+a.extras.length+" field(s) not in the schema:</b><br>"+a.extras.map(function(k){return "<code>"+esc(k)+"</code>";}).join("");
+      F.appendChild(box);
+    }
+
+    // cross-field logic checks
+    a.counts.error += renderCrossChecks(rec, F);
+
+    // single DOM swap
+    form.replaceChildren(F);
+
+    drawVerdict(a.counts,a.extras.length);
+    drawSummary(a.counts);
+    applyFilter();
+
+    function sectionHead(t,hint){ var h=document.createElement("div"); h.className="sect"; h.innerHTML="<span>"+esc(t)+"</span>"+(hint?'<span class="hint">'+esc(hint)+'</span>':''); F.appendChild(h); }
+    function note(msg,kind){ var d=document.createElement("div"); d.className="note"; d.style.padding="2px 10px 8px"; if(kind==="error"){d.style.color="var(--err)";} else if(kind==="empty"){d.style.color="var(--warn)";} d.textContent=msg; F.appendChild(d); }
+  }
+
+  function buildRow(it, system){
+    var def=it.def, res=it.res;
+    var status = res.soft? "valid" : res.status;
+    var row=document.createElement("div");
+    row.className="row st-"+(system&&status==="empty"?"sysempty":status);
+    row.dataset.key=def.k.toLowerCase();
+    row.dataset.problem=(status==="error"||status==="empty"||status==="missing")&&!(system&&status==="empty")?"1":"0";
+    rows.push(row);
+
+    var dot=document.createElement("div"); dot.className="dot "+(system&&status==="empty"?"sysempty":status);
+    var keyEl=document.createElement("div"); keyEl.className="key";
+    keyEl.innerHTML='<span class="lbl">'+esc(def.k)+'</span><span class="type">'+def.t+(def.t==="enum"&&def.opts?" · "+def.opts.length+" opts"+(def.hard?"":" (soft)"):"")+'</span>';
+    var valEl=document.createElement("div"); valEl.className="val";
+
+    if(!it.present){ var n=document.createElement("div"); n.className="note"; n.style.color="var(--err)"; n.textContent=res.msg; valEl.appendChild(n); }
+    else buildEditor(it,valEl,row,system);
+
+    row.appendChild(dot); row.appendChild(keyEl); row.appendChild(valEl);
+    return row;
+  }
+
+  function buildEditor(it,valEl,row,system){
+    var def=it.def, value=it.value, meta=document.createElement("div"); meta.className="meta";
+    if(def.t==="id"||def.t==="any"){
+      var ro=document.createElement("input"); ro.className="readonly"; ro.readOnly=true;
+      ro.value= isObj(value)? JSON.stringify(value): (value===null?"null":String(value));
+      valEl.appendChild(ro); valEl.appendChild(meta); writeMeta(def,value,it.res,meta); srcBadge(meta, def.k); return;
+    }
+    if(def.t==="bool"){
+      var sel=document.createElement("select");
+      [["true","true"],["false","false"]].forEach(function(o){var op=document.createElement("option");op.value=o[0];op.textContent=o[1];if(value===true&&o[0]==="true")op.selected=true;if(value===false&&o[0]==="false")op.selected=true;sel.appendChild(op);});
+      if(typeof value!=="boolean"){var cur=document.createElement("option");cur.value="__";cur.textContent=String(value)+" (not bool)";cur.selected=true;sel.appendChild(cur);}
+      sel.onchange=function(){ if(sel.value!=="__"){it.container[it.key]=(sel.value==="true"); recheck(it,row,meta,system);} };
+      valEl.appendChild(sel);
+    } else if(def.t==="enum" && !def.opts){
+      var ti=document.createElement("input"); ti.type="text"; ti.value=(value==null?"":String(value));
+      ti.oninput=function(){ it.container[it.key]=ti.value; recheck(it,row,meta,system); };
+      valEl.appendChild(ti);
+    } else if(def.t==="enum"){
+      var s=document.createElement("select"); var blank=document.createElement("option");blank.value="";blank.textContent="— select —";s.appendChild(blank);var found=false;
+      def.opts.forEach(function(o){var op=document.createElement("option");op.value=o;op.textContent=o;if(String(value).toLowerCase()===o.toLowerCase()){op.selected=true;found=true;}s.appendChild(op);});
+      if(!found&&value){var c=document.createElement("option");c.value=String(value);c.textContent=String(value)+" (current)";c.selected=true;s.appendChild(c);}
+      s.onchange=function(){ it.container[it.key]=s.value; recheck(it,row,meta,system); };
+      valEl.appendChild(s);
+    } else if(def.t==="ntee"){
+      var ntWrap=document.createElement("div");
+      var nta=document.createElement("textarea"); nta.rows=Math.min(6,Math.max(2,Array.isArray(value)?value.length:2));
+      nta.value=Array.isArray(value)?value.join("\n"):String(value);
+      var bd=document.createElement("div"); bd.className="ntee-bd";
+      function renderBd(){ var arr=it.container[it.key]||[]; var from=(records[idx]&&records[idx].__nteeFrom)||{}; bd.innerHTML=arr.map(function(x){var c=classifyNtee(x,def.map); if(c.kind==="unknown")return '<div class="nt-item nt-unk">? <code>'+esc(x)+'</code> not a recognized NTEE area</div>'; var trace=from[x]?' <span class="nt-from">(auto-converted from '+esc(from[x])+')</span>':''; return '<div class="nt-item nt-ok">&#10003; '+esc(x)+trace+'</div>';}).join(""); }
+      nta.oninput=function(){ it.container[it.key]=nta.value.split("\n").map(function(s){return s.trim();}).filter(function(s){return s.length;}); recheck(it,row,meta,system); renderBd(); };
+      ntWrap.appendChild(nta); ntWrap.appendChild(bd); valEl.appendChild(ntWrap); renderBd();
+    } else if(def.t==="list"){
+      var ta=document.createElement("textarea"); ta.rows=Math.min(6,Math.max(2,Array.isArray(value)?value.length:2));
+      ta.value=Array.isArray(value)?value.map(function(x){return isObj(x)?JSON.stringify(x):x;}).join("\n"):String(value);
+      ta.oninput=function(){ it.container[it.key]=ta.value.split("\n").map(function(s){return s.trim();}).filter(function(s){return s.length;}); recheck(it,row,meta,system); };
+      valEl.appendChild(ta);
+    } else if(def.t==="linklist"){
+      var ro2=document.createElement("textarea"); ro2.className="readonly"; ro2.readOnly=true; ro2.rows=Math.min(5,Math.max(1,Array.isArray(value)?value.length:1));
+      ro2.value=Array.isArray(value)? value.map(function(x){return isObj(x)?((x.category?x.category+": ":"")+(x.url||JSON.stringify(x))):x;}).join("\n") : "";
+      valEl.appendChild(ro2);
+    } else {
+      var str=(value==null)?"":String(value);
+      var multi=def.t==="longtext"||str.length>60||str.indexOf("\n")!==-1;
+      var el=multi?document.createElement("textarea"):document.createElement("input");
+      if(multi)el.rows=Math.min(12,Math.max(3,Math.ceil(str.length/70))); else el.type="text";
+      el.value=str;
+      el.oninput=function(){ var raw=el.value; if(def.t==="number"&&raw.trim()!==""&&!isNaN(Number(raw)))it.container[it.key]=Number(raw); else it.container[it.key]=raw; recheck(it,row,meta,system); };
+      valEl.appendChild(el);
+    }
+    valEl.appendChild(meta); writeMeta(def,it.container[it.key],it.res,meta); srcBadge(meta, def.k);
+  }
+
+  // ---- source-check (written into JSON by qa_local.py) ----
+  function currentSource(){ var r=records[idx]; return (r && r.__sourceCheck && r.__sourceCheck.fields) ? r.__sourceCheck.fields : null; }
+  function srcBadge(meta, key){
+    var sc=currentSource(); if(!sc) return; var r=sc[key]; if(!r) return;
+    var st=r.status||"unverifiable", cls, label;
+    if(st==="match"){ cls="src-ok"; label="✓ matches source"; }
+    else if(st==="mismatch"){ cls="src-bad"; label="✕ differs from source"+(r.pageValue?" (page: "+esc(String(r.pageValue))+")":""); }
+    else if(st==="not_found"){ cls="src-unk"; label="source: not found on page"; }
+    else { cls="src-unk"; label="source: unverifiable"; }
+    var span=document.createElement("span"); span.className="srcbadge "+cls; span.innerHTML=label;
+    meta.appendChild(document.createTextNode(" ")); meta.appendChild(span);
+  }
+
+  function buildDateRow(d){
+    var row=document.createElement("div"); var status=d.res.soft?"valid":d.res.status;
+    row.className="row st-"+status; row.dataset.key=d.fieldName.toLowerCase(); row.dataset.problem=status==="error"?"1":"0"; rows.push(row);
+    var dot=document.createElement("div"); dot.className="dot "+status;
+    var keyEl=document.createElement("div"); keyEl.className="key";
+    keyEl.innerHTML='<span class="lbl">'+esc(d.fieldName)+'</span><span class="type">date object</span>';
+    var valEl=document.createElement("div"); valEl.className="val";
+    var de=d.entry;
+    var dateStr = isObj(de)&&de.date? (de.date.$date||de.date) : "(no date)";
+    var ro=document.createElement("input"); ro.className="readonly"; ro.readOnly=true;
+    ro.value= dateStr + (isObj(de)? "   ·  dayExplicit="+de.isDayExplicit+"  yearExplicit="+de.isYearExplicit : "");
+    var meta=document.createElement("div"); meta.className="meta";
+    if(d.res.status==="error") meta.innerHTML='<span class="'+(d.res.soft?"warn":"bad")+'">'+esc(d.res.msg)+'</span>';
+    else if(isObj(de)&&de.category) meta.textContent="category: "+de.category;
+    valEl.appendChild(ro); valEl.appendChild(meta);
+    srcBadge(meta, d.fieldName);
+    row.appendChild(dot); row.appendChild(keyEl); row.appendChild(valEl);
+    return row;
+  }
+
+  function recheck(it,row,meta,system){
+    var res=validate(it.def,true,it.container[it.key]); it.res=res;
+    var status=res.soft?"valid":res.status;
+    row.className="row st-"+(system&&status==="empty"?"sysempty":status);
+    row.dataset.problem=((status==="error"||status==="empty"||status==="missing")&&!(system&&status==="empty"))?"1":"0";
+    row.querySelector(".dot").className="dot "+(system&&status==="empty"?"sysempty":status);
+    writeMeta(it.def,it.container[it.key],res,meta);
+    recount();
+  }
+  function writeMeta(def,value,res,meta){
+    var bits=[];
+    if(def.t==="longtext"||def.t==="text"){var s=(value==null)?"":String(value);bits.push(wc(s)+" words · "+s.length+" chars");if(def.maxWords&&wc(s)>def.maxWords)bits.push('<span class="bad">⚠ over '+def.maxWords+' words</span>');}
+    if(def.t==="list"&&Array.isArray(value))bits.push(value.length+" item(s)");
+    if(res.status==="error")bits.push('<span class="'+(res.soft?"warn":"bad")+'">'+(res.soft?"":"✕ ")+esc(res.msg)+'</span>');
+    else if(res.msg)bits.push('<span class="warn">'+esc(res.msg)+'</span>');
+    meta.innerHTML=bits.join(" · ");
+  }
+
+  function drawVerdict(c,extras){
+    verdict.style.display="block"; var v=verdictOf(c),big,line;
+    if(v==="fail")big="✕ "+c.error+" error"+(c.error>1?"s":"")+" — needs fixing";
+    else if(v==="review")big="⚠ No errors, but "+(c.empty+c.missing)+" empty/missing field(s) to eyeball";
+    else big="✓ All fields present and valid";
+    line="Every field checked for presence + type + allowed values. Empty values flagged for review, not failed (empties are common in real records)."+((window.__totalConv)?" · Auto-converted "+window.__totalConv+" NTEE code(s) to explained form across the batch.":"")+(c.soft?" · "+c.soft+" value(s) outside the known dropdown list — verify.":"")+(extras?" · "+extras+" unrecognized field(s).":"");
+    var sc=currentSource(); var srcLine="";
+    if(sc){ var m=0,x=0,u=0; Object.keys(sc).forEach(function(k){var s=sc[k].status; if(s==="match")m++; else if(s==="mismatch")x++; else u++;});
+      srcLine='<div class="line" style="margin-top:6px">Source check: <b style="color:var(--ok)">'+m+' match</b>, <b style="color:var(--err)">'+x+' differ</b>, '+u+' unverifiable.</div>'; }
+    verdict.className="verdict "+v; verdict.innerHTML='<div class="big">'+big+'</div><div class="line">'+line+'</div>'+srcLine;
+  }
+  function drawSummary(c){
+    summary.innerHTML='<span class="pill ok">'+c.valid+' valid</span><span class="pill empty">'+c.empty+' empty</span><span class="pill err">'+(c.error+c.missing)+' error</span>';
+  }
+  function recount(){
+    var c={valid:0,empty:0,missing:0,error:0};
+    rows.forEach(function(r){ if(r.classList.contains("st-valid")||r.classList.contains("st-sysempty"))c.valid++; else if(r.classList.contains("st-empty"))c.empty++; else if(r.classList.contains("st-missing"))c.missing++; else if(r.classList.contains("st-error"))c.error++; });
+    drawSummary(c);
+    var v=verdictOf(c); verdict.className="verdict "+v;
+    verdict.querySelector(".big").textContent = v==="fail"? ("✕ "+c.error+" error(s) — needs fixing") : v==="review"? ("⚠ No errors, but "+(c.empty+c.missing)+" to eyeball") : "✓ All fields present and valid";
+  }
+
+  function applyFilter(){
+    var q=search.value.trim().toLowerCase(); var onlyP=onlyProblems.checked;
+    rows.forEach(function(r){ var mt=!q||r.dataset.key.indexOf(q)!==-1; var mp=!onlyP||r.dataset.problem==="1"; r.style.display=(mt&&mp)?"":"none"; });
+  }
+
+  function ensureProg(){
+    if(!window.__batchProg){ var d=document.createElement("div"); d.id="batchProg";
+      d.style.cssText="font-size:12.5px;color:var(--ink-soft);margin:6px 0"; var tbl=batch.querySelector("table");
+      batch.insertBefore(d, tbl); window.__batchProg=d; }
+    return window.__batchProg;
+  }
+  function batchPlaceholder(){
+    batch.style.display="block"; ensureProg().textContent=records.length+" record(s) loaded. Click \u201cCheck all\u201d to audit them (large files audit in the background).";
+    batchBody.innerHTML="";
+  }
+  // fast, display-free verdict counts for one record
+  function quickCounts(rec){
+    if(isCycleBased(rec)) return quickCountsCycle(rec);
+    var c={error:0,missing:0,empty:0};
+    function t(res){ if(res.soft)return; if(res.status==="error")c.error++; else if(res.status==="missing")c.missing++; else if(res.status==="empty")c.empty++; }
+    SECTIONS.forEach(function(sec){ sec.fields.forEach(function(def){ t(validate(def,Object.prototype.hasOwnProperty.call(rec,def.k),rec[def.k])); }); });
+    var ci=rec.contactInformation;
+    if(isObj(ci)) CONTACT_FIELDS.forEach(function(def){ t(validate(def,Object.prototype.hasOwnProperty.call(ci,def.k),ci[def.k])); }); else c.missing++;
+    if(isObj(rec.dueDate)) Object.keys(rec.dueDate).forEach(function(fn){ var de=rec.dueDate[fn]; if(!isObj(de)||!de.date||typeof de.isDayExplicit!=="boolean"||typeof de.isYearExplicit!=="boolean")c.error++; });
+    if(Array.isArray(rec.fundingMechanism)) rec.fundingMechanism.forEach(function(fm){ t(validate({k:"parentFundingMechanism",t:"enum",opts:PARENT_MECH,hard:true},Object.prototype.hasOwnProperty.call(fm,"parentFundingMechanism"),fm.parentFundingMechanism)); }); else c.error++;
+    if(Array.isArray(rec.stages)) rec.stages.forEach(function(st){ STAGE_FIELDS.forEach(function(def){ t(validate(def, isObj(st)&&Object.prototype.hasOwnProperty.call(st,def.k), isObj(st)?st[def.k]:undefined)); }); }); else c.error++;
+    SYSTEM_FIELDS.forEach(function(def){ if(!Object.prototype.hasOwnProperty.call(rec,def.k))c.missing++; });
+    c.error += crossFieldIssues(rec).length;
+    return c;
+  }
+  function buildBatch(){
+    batch.style.display="block"; ensureProg(); batchBody.innerHTML="";
+    var N=records.length, i=0, CHUNK=200, shown=0, CAP=1500, capped=false, pass=0,review=0,fail=0;
+    function step(){
+      var end=Math.min(N,i+CHUNK), frag=document.createDocumentFragment();
+      for(;i<end;i++){
+        var c=quickCounts(records[i]); var v=(c.error+c.missing)>0?"fail":(c.empty>0?"review":"pass");
+        if(v==="pass"){ pass++; continue; }
+        if(v==="review")review++; else fail++;
+        if(shown>=CAP){ capped=true; continue; }
+        shown++;
+        var tr=document.createElement("tr"); tr.className="clk";
+        tr.innerHTML="<td>"+(i+1)+"</td><td>"+esc(records[i].title?String(records[i].title).slice(0,70):"(no title)")+"</td><td><span class=\"tag "+v+"\">"+v.toUpperCase()+"</span></td><td>"+(c.error+c.missing)+"</td><td>"+c.empty+"</td>";
+        (function(ix){ tr.onclick=function(){ idx=ix; renderRecord(); window.scrollTo({top:0,behavior:"smooth"}); }; })(i);
+        frag.appendChild(tr);
+      }
+      batchBody.appendChild(frag);
+      window.__batchProg.textContent="Audited "+i+" / "+N+"  \u00b7  FAIL "+fail+" \u00b7 REVIEW "+review+" \u00b7 PASS "+pass;
+      if(i<N) setTimeout(step,0);
+      else window.__batchProg.textContent="Done: "+N+" records  \u00b7  FAIL "+fail+" \u00b7 REVIEW "+review+" \u00b7 PASS "+pass+"  \u00b7  table lists FAIL/REVIEW only"+(capped?" (first "+CAP+")":"");
+    }
+    step();
+  }
+
+  // ============ wiring ============
+  function setSidebar(open){
+    var lay=document.querySelector(".layout"); if(!lay) return;
+    lay.classList.toggle("sidebar-collapsed", !open);
+    var b=document.getElementById("sidebarToggle");
+    if(b){ b.setAttribute("aria-expanded", open?"true":"false");
+      b.querySelector(".st-icon").textContent = open?"⟨":"⟩";
+      b.querySelector(".st-label").textContent = open?"Hide panel":"Show panel";
+      b.title = open?"Hide input panel":"Show input panel"; }
+  }
+  document.getElementById("sidebarToggle").onclick=function(){
+    var collapsed=document.querySelector(".layout").classList.contains("sidebar-collapsed");
+    setSidebar(collapsed); // if collapsed -> open, else close
+  };
+  document.getElementById("loadBtn").onclick=run;
+  document.getElementById("fileBtn").onclick=function(){document.getElementById("fileInput").click();};
+  document.getElementById("fileInput").onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var d;try{d=JSON.parse(r.result);}catch(err){parseErr.textContent="Invalid JSON: "+err.message;parseErr.style.display="block";return;}input.value="\u2713 Loaded "+(Array.isArray(d)?d.length:1)+" record(s) from "+f.name+" \u2014 working from the file (box left empty for speed).";loadData(d);};r.readAsText(f);};
+  document.getElementById("prevBtn").onclick=function(){if(idx>0){idx--;renderRecord();}};
+  document.getElementById("nextBtn").onclick=function(){if(idx<records.length-1){idx++;renderRecord();}};
+  recSel.onchange=function(){idx=Number(recSel.value);renderRecord();};
+  document.getElementById("overviewBtn").onclick=buildBatch;
+  search.oninput=applyFilter; onlyProblems.onchange=applyFilter;
+  input.addEventListener("dragover",function(e){e.preventDefault();});
+  input.addEventListener("drop",function(e){e.preventDefault();var f=e.dataTransfer.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var d;try{d=JSON.parse(r.result);}catch(err){parseErr.textContent="Invalid JSON: "+err.message;parseErr.style.display="block";return;}input.value="\u2713 Loaded "+(Array.isArray(d)?d.length:1)+" record(s) from "+f.name+" \u2014 working from the file (box left empty for speed).";loadData(d);};r.readAsText(f);});
+  document.getElementById("copyBtn").onclick=function(){navigator.clipboard.writeText(JSON.stringify(stripMeta(records[idx]),null,2)).then(function(){var b=document.getElementById("copyBtn"),o=b.textContent;b.textContent="Copied ✓";setTimeout(function(){b.textContent=o;},1200);});};
+  document.getElementById("downloadBtn").onclick=function(){dl(records[idx],"record-"+(idx+1)+".json");};
+  document.getElementById("downloadAllBtn").onclick=function(){dl(records,"reviewed-all.json");};
+  function stripMeta(o){ if(Array.isArray(o)) return o.map(stripMeta); if(o&&typeof o==="object"){ var c={}; Object.keys(o).forEach(function(k){ if(k!=="__nteeFrom" && k!=="__sourceCheck") c[k]=o[k]; }); return c; } return o; }
+  function dl(obj,name){var b=new Blob([JSON.stringify(stripMeta(obj),null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+})();
+</script>
+</body>
+</html>
