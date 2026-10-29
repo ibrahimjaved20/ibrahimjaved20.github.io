@@ -472,3 +472,38 @@ footer{text-align:center}
   .js .ba .ba-f{transition:none}
   .shape,.proj{transition:none;animation:none}
 }
+
+/* QA fixes after live testing */
+h1,h2,h3{text-wrap:balance}
+.sec-head{max-width:52rem}
+main{overflow-x:clip}
+.links{min-width:0}
+.badge{border:0;color:var(--gold-ink);box-shadow:0 10px 26px -10px rgba(0,0,0,.5)}
+.badge.b2{background:var(--gold);right:-4%;top:8%}
+.badge.b1{background:var(--teal);color:var(--teal-ink);left:-6%;bottom:9%}
+.badge small{color:inherit;opacity:.85}
+.tiles-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tiles-row .tile{min-width:0;padding:1.1rem 1.2rem}
+.tiles-row .tile .big,.tiles-row .tile.t1 .big{font-size:clamp(1.55rem,3.4vw,2.6rem)}
+.go-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+.go-card{grid-column:span 2}
+.go-card:nth-child(n+4){grid-column:span 3}
+.mail{overflow-wrap:anywhere}
+.about>div{min-width:0}
+@media (max-width:900px){
+  .go-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .go-card,.go-card:nth-child(n+4){grid-column:span 1}
+  .go-card:last-child{grid-column:1 / -1}
+}
+@media (max-width:760px){
+  .nav{gap:.3rem;padding:.35rem .4rem .35rem .5rem}
+  .links a{padding:.45rem .7rem;font-size:.9rem}
+  .icon-btn{padding:.4rem .65rem;font-size:.82rem}
+  .badge{font-size:.85rem;padding:.45rem .75rem}
+  .badge.b2{right:-2%}
+  .badge.b1{left:-3%}
+}
+@media (max-width:560px){
+  .go-grid{grid-template-columns:1fr}
+  .go-card:last-child{grid-column:auto}
+}
