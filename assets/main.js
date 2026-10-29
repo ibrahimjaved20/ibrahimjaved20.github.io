@@ -431,6 +431,64 @@
     });
   })();
 
+
+  /* ---------- Philip Morris: statement explorer ---------- */
+  (function(){
+    var YEARS = [2019, 2020, 2021, 2022, 2023];
+    var SALES = [13334498, 16596036, 17458557, 19838541, 18219709];
+    var EX = {
+      sales: {label:"Sales", grp:"is", v:SALES, why:"Illicit trade took a growing share of the market (about 33% in 2019 and 37% in 2020) while excise duty rose sharply: 93% in the earlier period and more than 200% in fiscal 2022 to 2023. Volume fell 20% in 2020 even as revenue rose. Tobacco exports helped offset weaker domestic turnover."},
+      cogs: {label:"Cost of sales", grp:"is", v:[9144670, 10138881, 9975405, 10943558, 12082355], why:"Tobacco, filters, and packaging are largely imported, so rupee devaluation and inflation hit directly. The report cites a 30% devaluation in 2022 and a PKR 32,000 minimum wage in 2023, which pushed labor, energy, and material costs up together."},
+      dm: {label:"Distribution and marketing", grp:"is", v:[2663662, 2601318, 2979029, 3329049, 5578496], why:"Inflation above 20% in 2022 and 2023, heavier regulation (excise, plain packaging, advertising limits), and a push into rural markets that needed more sales staff and more depots."},
+      admin: {label:"Administrative", grp:"is", v:[1512611, 1621438, 1404349, 1645663, 1838038], why:"Forecast drivers in the report: professional service costs, energy tariffs, wage inflation, and higher depreciation, partly offset by reduced philanthropy."},
+      oinc: {label:"Other income", grp:"is", v:[710607, 843664, 1076085, 1457171, 3409915], why:"Higher interest earned on deposits as rates rose, plus profit on the disposal of non-current assets in 2023. Other income more than doubled in the year."},
+      fin: {label:"Finance cost", grp:"is", v:[48807, 88036, 66962, 66699, 90336], why:"A small line next to the others, at PKR 0.09B in 2023. The report forecasts it falling 15% in 2024."},
+      stock: {label:"Stock in trade", grp:"bs", v:[6141376, 4866357, 5869601, 8689766, 12033405], why:"Nearly doubled over the period. Forecast drivers: higher stock holding, product line expansion, inflation and taxes on raw materials, and illicit trade."},
+      cash: {label:"Cash and bank", grp:"bs", v:[330283, 5383334, 7991843, 7302365, 9062895], why:"Grew from PKR 0.33B to 9.06B. The report links the build to selling off assets, product line expansion, and unpaid dividends."},
+      pay: {label:"Trade and other payables", grp:"bs", v:[4296586, 4898438, 6310239, 8800476, 13504425], why:"More than tripled. Forecast drivers: advances from customers, rising raw material needs, and supplier credit that stretches as the company focuses on sustainability."}
+    };
+    var cur = "cogs", svg = $("exChart"), NS = "http://www.w3.org/2000/svg";
+    function el(t, a){ var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); return e; }
+    function pct(a, b){ return (a / b - 1) * 100; }
+    function sgn(x){ return (x >= 0 ? "+" : "-") + Math.abs(x).toFixed(1) + "%"; }
+    function build(boxId, grp){
+      var box = $(boxId);
+      Object.keys(EX).filter(function(k){ return EX[k].grp === grp; }).forEach(function(k){
+        var b = document.createElement("button"); b.type = "button"; b.setAttribute("data-k", k); b.textContent = EX[k].label; b.setAttribute("aria-pressed", k === cur ? "true" : "false");
+        b.addEventListener("click", function(){ cur = k; draw(); });
+        box.appendChild(b);
+      });
+    }
+    function draw(){
+      var d = EX[cur], v = d.v.map(function(x){ return x / 1e6; }), W = 640, H = 250, L = 44, R = 12, T = 24, B = 34, max = Math.max.apply(null, v) * 1.18;
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      for (var g = 0; g <= 4; g++){
+        var gv = max * g / 4, y = T + (H - T - B) * (1 - g / 4);
+        svg.appendChild(el("line", {x1:L, x2:W - R, y1:y, y2:y, "class":"c-axis"}));
+        var t = el("text", {x:L - 6, y:y + 4, "text-anchor":"end", "class":"c-txt"}); t.textContent = gv >= 10 ? gv.toFixed(0) : gv.toFixed(1); svg.appendChild(t);
+      }
+      var bw = (W - L - R) / v.length;
+      v.forEach(function(val, i){
+        var h = (H - T - B) * (val / max), x = L + i * bw + bw * .2, w = bw * .6, y = H - B - h;
+        svg.appendChild(el("rect", {x:x, y:y, width:w, height:Math.max(h, 1), rx:6, "class":"sq-bar" + (i === 4 ? " hi" : "")}));
+        var lab = el("text", {x:x + w / 2, y:y - 6, "text-anchor":"middle", "class":"sq-val"}); lab.textContent = val >= 10 ? val.toFixed(1) : val.toFixed(2); svg.appendChild(lab);
+        var yr = el("text", {x:x + w / 2, y:H - 12, "text-anchor":"middle", "class":"c-txt"}); yr.textContent = YEARS[i]; svg.appendChild(yr);
+      });
+      var isIS = d.grp === "is", rows = '<thead><tr><th scope="col">Year</th><th scope="col">PKR billion</th><th scope="col">Change on prior year</th>' + (isIS ? '<th scope="col">Share of sales</th>' : '') + '</tr></thead><tbody>';
+      d.v.forEach(function(x, i){
+        rows += '<tr><th scope="row">' + YEARS[i] + '</th><td>' + (x / 1e6).toFixed(2) + '</td><td>' + (i ? sgn(pct(x, d.v[i - 1])) : 'n/a') + '</td>' + (isIS ? '<td>' + (x / SALES[i] * 100).toFixed(1) + '%</td>' : '') + '</tr>';
+      });
+      $("exTable").innerHTML = rows + '</tbody>';
+      var last = d.v[4], prev = d.v[3];
+      $("exLabel").textContent = d.label + ", 2023";
+      $("exHead").textContent = sgn(pct(last, prev)) + " on 2022" + (isIS && cur !== "sales" ? ", at " + (last / SALES[4] * 100).toFixed(1) + "% of sales" : (cur === "sales" ? ", to PKR " + (last / 1e6).toFixed(1) + "B" : ", to PKR " + (last / 1e6).toFixed(2) + "B"));
+      $("exWhy").textContent = d.why;
+      var bs = document.querySelectorAll("#exIS button, #exBS button");
+      for (var i = 0; i < bs.length; i++) bs[i].setAttribute("aria-pressed", bs[i].getAttribute("data-k") === cur ? "true" : "false");
+    }
+    build("exIS", "is"); build("exBS", "bs"); draw();
+  })();
+
   /* ---------- Python analysis section ---------- */
   var PY_TABS = document.querySelectorAll(".py-tabs [role=tab]");
   function showPane(id){

@@ -427,8 +427,6 @@ footer{text-align:center}
 .badge{position:absolute;z-index:2;padding:.55rem .95rem;border-radius:16px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:.95rem;line-height:1.25}
 .badge strong{font-family:"Outfit",system-ui,sans-serif;font-size:1.15rem;display:block}
 .badge small{display:block;color:var(--muted);font-size:.82rem}
-.badge.b1{left:-6%;bottom:12%}
-.badge.b2{right:-5%;top:9%}
 .tiles-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin:-.4rem 0 .5rem}
 .tiles-row .tile{grid-column:auto;min-height:8.5rem}
 .go-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15.5rem,1fr));gap:1rem}
@@ -479,8 +477,8 @@ h1,h2,h3{text-wrap:balance}
 main{overflow-x:clip}
 .links{min-width:0}
 .badge{border:0;color:var(--gold-ink);box-shadow:0 10px 26px -10px rgba(0,0,0,.5)}
-.badge.b2{background:var(--gold);right:-4%;top:8%}
-.badge.b1{background:var(--teal);color:var(--teal-ink);left:-6%;bottom:9%}
+.badge.b2{background:var(--gold);right:.8rem;top:.9rem}
+.badge.b1{background:var(--teal);color:var(--teal-ink);left:.8rem;bottom:.9rem}
 .badge small{color:inherit;opacity:.85}
 .tiles-row{grid-template-columns:repeat(4,minmax(0,1fr))}
 .tiles-row .tile{min-width:0;padding:1.1rem 1.2rem}
@@ -500,8 +498,8 @@ main{overflow-x:clip}
   .links a{padding:.45rem .7rem;font-size:.9rem}
   .icon-btn{padding:.4rem .65rem;font-size:.82rem}
   .badge{font-size:.85rem;padding:.45rem .75rem}
-  .badge.b2{right:-2%}
-  .badge.b1{left:-3%}
+  .badge.b2{right:.5rem;top:.6rem}
+  .badge.b1{left:.5rem;bottom:.6rem}
 }
 @media (max-width:560px){
   .go-grid{grid-template-columns:1fr}
