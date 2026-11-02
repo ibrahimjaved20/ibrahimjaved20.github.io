@@ -1,0 +1,1 @@
+Extract this ZIP. Upload ALL the extracted files together to the main level of your existing GitHub repository, replacing existing files. No folders are needed for this version. Commit and wait for the Pages deployment to complete.
