@@ -19,3 +19,29 @@ body:has(.portfolio-guide){padding-bottom:88px}.portfolio-guide{left:0;right:0;b
 .guide-message p{white-space:pre-line}
 
 .guide-recording-notice{font-size:12px;line-height:1.45;padding:0 16px;margin:8px 0}.guide-recording-notice a{text-decoration:underline}.guide-form .guide-identity{display:grid;grid-template-columns:1fr;gap:4px;margin-bottom:10px}.guide-identity input{box-sizing:border-box;width:100%;min-width:0;padding:7px;border:1px solid var(--rule,#888);border-radius:4px;background:transparent;color:inherit}.guide-identity label{font-size:12px}
+
+/* Keep the conversation flexible and the composer inside the viewport. */
+.portfolio-guide .guide-panel{height:min(720px,calc(100dvh - 112px));max-height:calc(100dvh - 112px);box-sizing:border-box}
+.guide-panel>*{box-sizing:border-box}
+.guide-panel .guide-conversation{flex:1 1 0;min-height:64px;padding:16px;overflow-y:auto}
+.guide-panel .guide-header{padding:12px 16px;flex:none}
+.guide-panel .guide-header h2{font-size:20px}
+.guide-panel .guide-header p{font-size:13px;margin-top:4px}
+.guide-panel .guide-engine-status{padding:7px 16px;font-size:12px;flex:none}
+.guide-panel .guide-prompts{padding:4px 16px 10px;gap:6px;flex:none}
+.guide-panel .guide-prompts button{font-size:12px;min-height:36px;padding:6px 8px}
+.guide-panel .guide-recording-notice{flex:none;font-size:12px;line-height:1.4;margin:0;padding:8px 16px;border-top:1px solid var(--line)}
+.guide-panel .guide-form{flex:none;padding:8px 16px 10px;border-top:0;margin:0}
+.guide-contact{margin:0 0 8px;max-height:170px;overflow-y:auto}
+.guide-contact summary{color:var(--link);font-size:13px;cursor:pointer;min-height:32px;line-height:32px}
+.guide-contact .guide-identity{display:grid;grid-template-columns:1fr;gap:3px;margin:6px 0}
+.guide-panel .guide-contact input{box-sizing:border-box;height:36px;min-height:36px;padding:6px 8px;font-size:14px}
+.guide-panel .guide-form>label{font-size:12px;margin-bottom:5px}
+.guide-panel .guide-form>div{display:flex;align-items:stretch}
+.guide-panel #guide-question{box-sizing:border-box;height:44px;min-height:44px;padding:8px 10px;flex:1;width:0}
+.guide-panel .guide-form button{min-height:44px;flex:none}
+.guide-panel .guide-disclosure{flex:none;font-size:11px;line-height:1.4;padding:0 16px 10px;max-height:48px;overflow-y:auto}
+@media(max-width:600px){.portfolio-guide .guide-panel{inset:12px 12px calc(88px + env(safe-area-inset-bottom));height:auto;max-height:calc(100dvh - 100px - env(safe-area-inset-bottom))}}
+@media(max-height:560px){.guide-panel .guide-header p,.guide-panel .guide-engine-status{display:none}.guide-panel .guide-disclosure{display:none}.guide-contact{max-height:100px}}
+
+.guide-panel .guide-conversation{scrollbar-width:thin;scrollbar-gutter:stable;scroll-behavior:smooth}.guide-conversation::-webkit-scrollbar{width:8px}.guide-conversation::-webkit-scrollbar-track{background:var(--bg)}.guide-conversation::-webkit-scrollbar-thumb{background:var(--muted);border:2px solid var(--bg);border-radius:8px}@media(prefers-reduced-motion:reduce){.guide-panel .guide-conversation{scroll-behavior:auto}}
