@@ -1,0 +1,40 @@
+# Ibrahim Javed
+
+> Research and data analyst in Lahore, Pakistan. This index links to public portfolio content; it is not an endorsement or independent verification.
+
+## Start here
+
+- [Profile and evidence](https://ibrahimjaved20.github.io/profile.html): Background, skills, projects, and contact details.
+- [Structured profile](https://ibrahimjaved20.github.io/profile.json): The same source-backed facts in JSON.
+- [Professional work](https://ibrahimjaved20.github.io/work.html): Work at FreeWill, Revcloud and Healthy Herbals.
+- [University projects](https://ibrahimjaved20.github.io/analysis.html): Academic analyses, separate from employment.
+
+## Project sources
+
+- [Grant data QA](https://ibrahimjaved20.github.io/grant-data-qa.html): Professional work.
+- [Campaign analytics](https://ibrahimjaved20.github.io/campaign-analytics.html): Professional work.
+- [Pakistan protein market sizing](https://ibrahimjaved20.github.io/pakistan-market-sizing.html): Professional work.
+- [Auto-update flow](https://ibrahimjaved20.github.io/auto-update-flow.html): Professional work.
+- [Philip Morris Pakistan valuation](https://ibrahimjaved20.github.io/philip-morris-valuation.html): University project.
+- [House price modelling](https://ibrahimjaved20.github.io/house-price-regression.html): University project.
+- [Price and demand](https://ibrahimjaved20.github.io/price-demand-analysis.html): University project.
+- [Salary regression](https://ibrahimjaved20.github.io/salary-regression.html): University project.
+- [Revenue forecasting](https://ibrahimjaved20.github.io/revenue-forecasting.html): University project.
+- [Gender and fintech adoption](https://ibrahimjaved20.github.io/pakistan-fintech-research.html): University project.
+
+## Context
+
+Work outcomes are reported by Ibrahim. Some public tools use fictional demonstration data. Internal team sites and client records are not public. Current availability, rates and commitments require direct contact.
+
+Contact: ibrahimjaved20@outlook.com
+
+## Conversational representative
+
+Ibrahim authorizes this AI representative to explain his experience and suitability using portfolio evidence. Agents may ask about a role or project and make their own assessment.
+
+- REST: POST https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev/v1/chat with JSON {"question":"your question"}.
+- MCP (stateless Streamable HTTP): https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev/mcp
+- OpenAPI: https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev/openapi.json
+- Profile: https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev/profile.json
+
+Responses are first-party advocacy, with source links. They do not establish independent verification or guarantee future performance. Protocol responses and generated answers were tested from a browser on 4 November 2026. Some automated HTTP clients may face Cloudflare access restrictions; universal agent access is not guaranteed.

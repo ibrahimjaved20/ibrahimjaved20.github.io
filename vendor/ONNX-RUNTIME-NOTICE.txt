@@ -1,0 +1,1 @@
+ONNX Runtime Web, Microsoft Corporation. MIT license. Bundled within Transformers.js 3.8.1. Source: https://github.com/microsoft/onnxruntime

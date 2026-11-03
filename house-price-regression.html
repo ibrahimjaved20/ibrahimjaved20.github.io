@@ -1,0 +1,91 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>House Price Regression in Python | Ibrahim Javed</title>
+<meta name="description" content="A Python regression project by Ibrahim Javed examining how house size and property type relate to price. Explore the model and its assumptions.">
+<meta name="author" content="Ibrahim Javed">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#101c2c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<link rel="canonical" href="https://ibrahimjaved20.github.io/house-price-regression.html">
+<link rel="me" href="https://www.linkedin.com/in/ibrahim-javed-97b049214">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ibrahim Javed">
+<meta property="og:title" content="House Price Regression in Python | Ibrahim Javed">
+<meta property="og:description" content="A Python regression project by Ibrahim Javed examining how house size and property type relate to price. Explore the model and its assumptions.">
+<meta property="og:url" content="https://ibrahimjaved20.github.io/house-price-regression.html">
+<meta property="og:image" content="https://ibrahimjaved20.github.io/previews/houses.webp">
+<meta property="og:image:width" content="720">
+<meta property="og:image:height" content="450">
+<meta property="og:image:alt" content="House price modelling — project tool or chart preview">
+<meta property="og:locale" content="en_US">
+
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="House Price Regression in Python | Ibrahim Javed">
+<meta name="twitter:description" content="A Python regression project by Ibrahim Javed examining how house size and property type relate to price. Explore the model and its assumptions.">
+<meta name="twitter:image" content="https://ibrahimjaved20.github.io/previews/houses.webp">
+<meta name="twitter:image:alt" content="House price modelling — project tool or chart preview">
+
+<script>document.documentElement.className += " js";</script>
+
+
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="style.css?v=20261102-redesign">
+<link rel="stylesheet" href="editorial.css?v=20261102-redesign">
+<link rel="stylesheet" href="visual.css?v=20261104-human"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://ibrahimjaved20.github.io/#person", "name": "Ibrahim Javed", "url": "https://ibrahimjaved20.github.io/", "image": "https://ibrahimjaved20.github.io/ibrahim-javed.webp", "jobTitle": "Research and Data Analyst", "description": "Research and data analyst based in Lahore, Pakistan, working across market research, campaign analytics, financial modelling, data quality and workflow automation.", "sameAs": ["https://www.linkedin.com/in/ibrahim-javed-97b049214"], "address": {"@type": "PostalAddress", "addressLocality": "Lahore", "addressCountry": "PK"}, "knowsAbout": ["Data analysis", "Python", "SQL", "Excel", "Market research", "Workflow automation", "Grant research", "Data quality assurance"], "alumniOf": {"@type": "CollegeOrUniversity", "name": "Lahore School of Economics"}}, {"@type": "WebSite", "@id": "https://ibrahimjaved20.github.io/#website", "url": "https://ibrahimjaved20.github.io/", "name": "Ibrahim Javed — Research & Data Analyst"}, {"@type": "WebPage", "@id": "https://ibrahimjaved20.github.io/house-price-regression.html#page", "url": "https://ibrahimjaved20.github.io/house-price-regression.html", "name": "House Price Regression in Python | Ibrahim Javed", "description": "A Python regression project by Ibrahim Javed examining how house size and property type relate to price. Explore the model and its assumptions.", "inLanguage": "en", "dateModified": "2026-11-03", "isPartOf": {"@id": "https://ibrahimjaved20.github.io/#website"}, "mainEntity": {"@id": "https://ibrahimjaved20.github.io/house-price-regression.html#project"}}, {"@type": "CreativeWork", "@id": "https://ibrahimjaved20.github.io/house-price-regression.html#project", "name": "House Price Regression in Python", "description": "A Python regression project by Ibrahim Javed examining how house size and property type relate to price. Explore the model and its assumptions.", "author": {"@id": "https://ibrahimjaved20.github.io/#person"}, "url": "https://ibrahimjaved20.github.io/house-price-regression.html", "keywords": "Regression · Model specification", "dateModified": "2026-11-03"}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://ibrahimjaved20.github.io/"}, {"@type": "ListItem", "position": 2, "name": "House price modelling", "item": "https://ibrahimjaved20.github.io/house-price-regression.html"}]}]}</script><link rel="stylesheet" href="experience.css?v=20261104-human"><link rel="alternate" type="application/json" href="profile.json" title="Ibrahim Javed structured profile"><link rel="stylesheet" href="portfolio-guide.css?v=3"><script src="analytics.js?v=1" defer></script></head><body data-page="analysis"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="wrap"><nav class="nav" aria-label="Main"><a class="brand" href="index.html">Ibrahim<span class="brand-family"> Javed</span><span class="brand-mark" aria-hidden="true">.</span></a><div class="links"><div class="nav-dropdown"><a href="work.html" >Work</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="work-menu" aria-label="Open Work menu"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button><div class="dropdown-menu" id="work-menu"><div class="menu-heading"><h2>Professional work</h2><a href="work.html">View all <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></div><div class="menu-grid"><a class="menu-project" href="grant-data-qa.html"><span>Grant data QA</span><small>FreeWill</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="auto-update-flow.html"><span>Auto-update flow</span><small>FreeWill</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="campaign-analytics.html"><span>Campaign analytics</span><small>Revcloud</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="pakistan-market-sizing.html"><span>Pakistan protein market sizing</span><small>Healthy Herbals</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></div></div></div><div class="nav-dropdown"><a href="analysis.html" aria-current="page">Analysis</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="analysis-menu" aria-label="Open Analysis menu"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button><div class="dropdown-menu" id="analysis-menu"><div class="menu-heading"><h2>University projects</h2><a href="analysis.html">View all <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></div><div class="menu-grid"><a class="menu-project" href="philip-morris-valuation.html"><span>Philip Morris Pakistan valuation</span><small>Financial analysis · Valuation</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="house-price-regression.html"><span>House price modelling</span><small>Regression · Model specification</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="price-demand-analysis.html"><span>Price and demand</span><small>Regression · Demand modelling</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="salary-regression.html"><span>Salary regression</span><small>Regression · Statistical inference</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="revenue-forecasting.html"><span>Revenue forecasting</span><small>Time series · Forecasting</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a><a class="menu-project" href="pakistan-fintech-research.html"><span>Gender and fintech adoption</span><small>Survey research · Ordered logit</small><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></div></div></div><a href="about.html" >About</a></div><button class="icon-btn" id="themeBtn" type="button">Light mode</button><a class="cta" href="mailto:ibrahimjaved20@outlook.com">Let’s talk <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></nav></div></header><main id="main"><section class="project-page"><div class="wrap"><div class="project-analysis py-pane on" id="pane-houses" role="region" aria-label="House price analysis">
+      <div class="pane-card c-blue">
+        <div class="pane-head"><a class="detail-back" href="analysis.html">Back to all analyses</a>
+          <h1 tabindex="-1">House price modelling</h1><p class="detail-summary">I tested how house size and property type relate to price.</p>
+          
+          <ul class="tools"><li>Python</li><li>pandas</li><li>statsmodels</li><li>seaborn</li></ul>
+        </div>
+        <div class="pane-body">
+          <details class="approach"><summary>Key results</summary><div class="stats">
+            <div class="stat"><b>0.927</b><span>R² of the final log-log model, up from 0.657 with size alone</span></div>
+            <div class="stat"><b>-$323 to +$156</b><span>price change per sq ft, before and after controlling for house type</span></div>
+            <div class="stat"><b>32 to 1.3</b><span>variance inflation of the pollution measures, after combining PM2.5 and NO2</span></div>
+            <div class="stat"><b>0.0008 to 0.42</b><span>Breusch-Pagan p-value, linear model versus log-log model</span></div>
+          </div></details>
+          <div class="two">
+            <details class="approach"><summary>Findings &amp; method</summary><div>
+              <h2 class="mini">What I found</h2>
+              <ul class="finds">
+                <li><strong>Size alone gave the wrong sign.</strong> Price appeared to fall by $323 for every extra square foot, because condos are small and expensive while ranches are large and cheap. With house type in the model, size adds $156 per square foot (p = 0.013).</li>
+                <li><strong>PM2.5 and NO2 carried the same signal.</strong> Both had variance inflation factors near 32 and neither was significant (p = 0.25 and 0.46). I combined them into one pollution index, the average of their z-scores, which was significant (p = 0.040) with a factor of 1.28.</li>
+                <li><strong>The linear model broke an assumption.</strong> A Breusch-Pagan test showed non-constant error variance (p = 0.0008). Switching to a log-log model fixed it (p = 0.42). The residuals are still not perfectly normal (Jarque-Bera p = 0.0125).</li>
+                <li><strong>In the log-log model,</strong> a 1% larger house is about 0.35% more expensive, 1% farther away is 0.14% cheaper, and 1% more pollution is 0.18% cheaper. Compared with condos, ranches are about 65% cheaper, split-levels 52%, and townhouses 31%, holding the rest equal.</li>
+                <li><strong>One concrete prediction:</strong> a 1,600 sq ft townhouse comes out at $800,642 in the linear model with type, with a 95% confidence interval for the mean of $748,844 to $852,440.</li>
+              </ul>
+            </div></details>
+            <div>
+              <div class="panel est">
+                <h2 class="panel-title">Try the final model</h2>
+                <p class="note">An estimate from the log-log model. Stay inside the data’s range for sensible answers.</p>
+                <div class="field" style="margin-top:.8rem"><label for="hType">House type</label>
+                  <select id="hType"><option>Condo</option><option>Ranch</option><option>Split</option><option selected>Townhouse</option></select></div>
+                <div class="field"><label for="hSize">Size: <output id="hSizeV"></output> sq ft</label><input id="hSize" type="range" min="550" max="3200" step="50" value="1550"></div>
+                <div class="field"><label for="hDist">Distance: <output id="hDistV"></output></label><input id="hDist" type="range" min="0.5" max="24" step="0.5" value="8.5"></div>
+                <div class="field"><label for="hPm">PM2.5: <output id="hPmV"></output></label><input id="hPm" type="range" min="6" max="30" step="0.5" value="17.5"></div>
+                <div class="field"><label for="hNo2">NO2: <output id="hNo2V"></output></label><input id="hNo2" type="range" min="12" max="48" step="0.5" value="30"></div>
+                <div class="out" aria-live="polite"><span class="note" style="color:inherit">Estimated price</span><b id="hOut"></b><span id="hCmp" class="note" style="color:inherit"></span></div>
+              </div>
+              <div class="panel">
+                <h2 class="panel-title">How the fit improved</h2>
+                <div class="lbars" id="ladder"></div>
+                <p class="cap">The last model predicts log price, so its R² is not strictly comparable with the others.</p>
+              </div>
+            </div>
+          </div>
+          <div class="figs">
+            <figure class="fig"><img src="houses-size-vs-price.webp" alt="Scatter plot of house price against size with a downward regression line, showing the misleading negative slope when house type is ignored" loading="lazy" width="846" height="547"><figcaption>Ignoring type: bigger looks cheaper.</figcaption></figure>
+            <figure class="fig"><img src="houses-price-by-type.webp" alt="Scatter plot of house price against size with a separate regression line for each house type, each sloping upward" loading="lazy" width="1015" height="597"><figcaption>Within each type, bigger is more expensive.</figcaption></figure>
+          </div>
+<pre class="codeblock"><code>model_log_log = smf.ols(formula_log_log, data=houses)
+results_log_log = model_log_log.fit()
+bp_test_log_log = het_breuschpagan(results_log_log.resid, X_log_log)</code></pre>
+          <p class="note" style="margin-top:.9rem">Limits: 100 houses, and the residuals still depart from normality, so the intervals should be read with care. Type and size remain correlated (variance inflation 10 to 17 in the log-log model).</p>
+        </div>
+      </div>
+    </div></div></section></main><footer><div class="wrap footer-grid"><div><h2>What are you<br>working on?</h2><a class="footer-email" href="mailto:ibrahimjaved20@outlook.com">ibrahimjaved20@outlook.com</a></div><div class="footer-links"><a href="work.html">Professional work</a><a href="analysis.html">University projects</a><a href="about.html">Who’s Ibrahim?</a><a href="resume.html">Résumé</a><a href="https://www.linkedin.com/in/ibrahim-javed-97b049214" target="_blank" rel="me noopener">LinkedIn</a></div></div><div class="wrap footer-bottom"><span>Ibrahim Javed · Lahore, Pakistan</span><span>Research, data &amp; the work behind it.</span></div></footer><script src="main.js?v=20261104-human" defer></script><script src="experience.js?v=20261104-human" defer></script><script src="portfolio-knowledge.js?v=5" defer></script><script src="portfolio-guide.js?v=4" defer></script></body></html>

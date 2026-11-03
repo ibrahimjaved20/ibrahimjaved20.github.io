@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="robots" content="noindex, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grant Assistant — Opportunity QA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts.css">
 <style>
   :root{
     --bg:#F5F8F8; --surface:#FFFFFF; --surface-2:#FAFCFC; --raise:#F0F5F4;
@@ -245,8 +246,29 @@
     .val .meta{font-size:10px}
   }
 
+
+  /* Portfolio workbench: quiet chrome, blue actions, data-first hierarchy. */
+  :root{--bg:#f5f7fa;--surface:#fff;--surface-2:#f8fafc;--raise:#eef2f7;--line:#d7dfeb;--line-2:#e7ecf3;--ink:#14243b;--ink-2:#485c73;--ink-3:#5c6d82;--acc:#164cce;--acc-2:#164cce;--acc-ink:#10399a;--acc-wash:#eaf0ff;--acc-line:#b7c8f1;--acc-glow:rgba(22,76,206,.16);--r-lg:12px;--r-md:8px;--r-sm:6px;--sh:none;--sh-sm:none;--focus:0 0 0 3px #b5c9ff}
+  [hidden]{display:none!important}
+  button,.nav select{min-height:44px}
+  a{color:var(--acc);text-underline-offset:4px}
+  :focus-visible{outline:3px solid var(--acc);outline-offset:3px}
+  .brand .mark{background:var(--ink);box-shadow:none;border-radius:6px}
+  .verdict::before,.row::before{display:none}
+  .verdict{box-shadow:none}
+  .demo-guide{margin:0 0 22px;padding:0 0 20px;border-bottom:1px solid var(--line);max-width:72ch}
+  .demo-guide h2{font-size:21px;line-height:1.25;letter-spacing:-.02em;margin:0 0 8px}
+  .demo-guide p{margin:0 0 12px;color:var(--ink-2)}
+  .demo-guide .demo-disclosure{font-size:12px;margin-top:10px}
+  .batch-open{border:0;background:transparent;padding:4px 0;min-height:36px;color:var(--acc);text-align:left;text-decoration:underline;text-underline-offset:3px}
+  .demo-back{display:inline-flex;align-items:center;min-height:44px;line-height:1.2;font-size:13px}
+  .demo-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .form-note{border-left:0!important;padding-left:0!important}
+  .right{min-width:0}
+  @media(max-width:640px){header{padding:12px 16px;flex-wrap:wrap}.right{padding:20px 16px}.demo-guide h2{font-size:19px}.nav select{max-width:100%;width:100%}.row{grid-template-columns:10px minmax(90px,32%) minmax(0,1fr);gap:8px}.row>*{min-width:0;overflow-wrap:anywhere}}
+
 </style>
-</head>
+<style>:root{--bg:#f2f5f8;--surface:#fff;--surface-2:#f2f5f8;--raise:#eaf0f8;--ink:#101c2c;--ink-2:#495a6e;--ink-3:#596b80;--acc:#1549d5;--acc-2:#1549d5;--acc-ink:#123db0;--acc-wash:#e8efff;--acc-line:#b5c8f5;--acc-glow:transparent;--ui:"IBM Plex Sans",sans-serif;--r-lg:4px;--r-md:4px;--r-sm:4px;--focus:0 0 0 3px #1549d530}header .brand .mark{background:var(--acc);box-shadow:none}.left{transition:none}:focus-visible{outline:3px solid var(--acc);outline-offset:3px}</style><script src="analytics.js?v=1" defer></script></head>
 <body>
 <header>
   <div class="brand">
@@ -271,13 +293,19 @@
       <input type="file" id="fileInput" accept=".json,application/json" style="display:none">
     </div>
     <div class="drop-note">You can also drag a .json file onto the box. Arrays of many records are supported.</div>
-    <div class="parse-err" id="parseErr"></div>
+    <div class="parse-err" id="parseErr" role="alert"></div>
   </div>
 
-  <div class="right">
+  <main class="right" id="qaResults">
+    <section class="demo-guide" id="demoGuide" hidden aria-labelledby="demoTitle">
+      <h2 id="demoTitle">Find an issue. Make the correction.</h2>
+      <p>Three fictional grant records are already audited. Compare their results below, inspect the garden grant’s issues, then edit a field to see the verdict update.</p>
+      <div class="demo-actions"><button type="button" class="primary" id="demoInspect">Inspect sample issues</button><a class="demo-back" href="index.html#qa-tool" target="_top">Back to the case study</a></div>
+      <p class="demo-disclosure">Demonstration data only. This checks structure and rules; it does not verify facts against funder websites. Your edits stay in this browser tab.</p>
+    </section>
     <div class="nav" id="nav">
       <button id="prevBtn">Prev</button>
-      <select id="recSel"></select>
+      <select id="recSel" aria-label="Select a grant record"></select>
       <button id="nextBtn">Next</button>
       <span class="rec-count" id="recCount"></span>
       <button id="overviewBtn">Check all</button>
@@ -288,11 +316,11 @@
       <table class="batch"><thead><tr><th>#</th><th>Title</th><th>Verdict</th><th>Errors</th><th>Empty</th></tr></thead><tbody id="batchBody"></tbody></table>
     </div>
 
-    <div class="verdict" id="verdict"></div>
+    <div class="verdict" id="verdict" role="status" aria-live="polite"></div>
     <div class="summary" id="summary"></div>
     <div class="form-note" style="font-size:11.5px;color:var(--ink-3);margin-bottom:12px;line-height:1.5;border-left:2px solid var(--line);padding-left:10px">Checks structure &amp; rules only (present, correct type, within limits, no contradictions). It does <b>not</b> verify whether values match the funder's page — use source verification for accuracy.</div>
     <div class="filter-row" id="filterRow" style="display:none">
-      <input type="search" id="search" placeholder="Filter fields by name…">
+      <input type="search" id="search" aria-label="Filter fields by name" placeholder="Filter fields by name…">
       <label class="toggle"><input type="checkbox" id="onlyProblems"> Only problems</label>
     </div>
     <div id="form"><div class="empty-state">Paste JSON on the left and click <b>Run QA</b>.</div></div>
@@ -302,7 +330,7 @@
       <button id="downloadAllBtn" style="display:none">Download all records</button>
     </div>
     <footer>Runs entirely in your browser. Nothing is uploaded. Rule set: every field must be <b>present</b> (missing key = error); wrong type / bad dropdown value / Summary over 170 words = error; empty values = amber review, since empties are common in real records. Edit the RULES block in the code to make specific fields non-empty-required.</footer>
-  </div>
+  </main>
 </div>
 
 <script>
@@ -1045,7 +1073,7 @@
   }
 
   function ensureProg(){
-    if(!window.__batchProg){ var d=document.createElement("div"); d.id="batchProg";
+    if(!window.__batchProg){ var d=document.createElement("div"); d.id="batchProg";d.setAttribute("role","status");
       d.style.cssText="font-size:12.5px;color:var(--ink-soft);margin:6px 0"; var tbl=batch.querySelector("table");
       batch.insertBefore(d, tbl); window.__batchProg=d; }
     return window.__batchProg;
@@ -1074,8 +1102,8 @@
         if(shown>=CAP){ capped=true; continue; }
         shown++;
         var tr=document.createElement("tr"); tr.className="clk";
-        tr.innerHTML="<td>"+(i+1)+"</td><td>"+esc(records[i].title?String(records[i].title).slice(0,70):"(no title)")+"</td><td><span class=\"tag "+v+"\">"+v.toUpperCase()+"</span></td><td>"+(c.error+c.missing)+"</td><td>"+c.empty+"</td>";
-        (function(ix){ tr.onclick=function(){ idx=ix; renderRecord(); window.scrollTo({top:0,behavior:"smooth"}); }; })(i);
+        tr.innerHTML="<td>"+(i+1)+"</td><td><button type=\"button\" class=\"batch-open\">"+esc(records[i].title?String(records[i].title).slice(0,70):"(no title)")+"</button></td><td><span class=\"tag "+v+"\">"+v.toUpperCase()+"</span></td><td>"+(c.error+c.missing)+"</td><td>"+c.empty+"</td>";
+        (function(ix){ tr.onclick=function(){ idx=ix; renderRecord(); window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth' }); }; })(i);
         frag.appendChild(tr);
       }
       batchBody.appendChild(frag);
@@ -1111,11 +1139,32 @@
   search.oninput=applyFilter; onlyProblems.onchange=applyFilter;
   input.addEventListener("dragover",function(e){e.preventDefault();});
   input.addEventListener("drop",function(e){e.preventDefault();var f=e.dataTransfer.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var d;try{d=JSON.parse(r.result);}catch(err){parseErr.textContent="Invalid JSON: "+err.message;parseErr.style.display="block";return;}input.value="\u2713 Loaded "+(Array.isArray(d)?d.length:1)+" record(s) from "+f.name+" \u2014 working from the file (box left empty for speed).";loadData(d);};r.readAsText(f);});
-  document.getElementById("copyBtn").onclick=function(){navigator.clipboard.writeText(JSON.stringify(stripMeta(records[idx]),null,2)).then(function(){var b=document.getElementById("copyBtn"),o=b.textContent;b.textContent="Copied ✓";setTimeout(function(){b.textContent=o;},1200);});};
+  document.getElementById("copyBtn").onclick=function(){
+    var b=document.getElementById('copyBtn');
+    if(!navigator.clipboard){b.textContent='Use Download this record';return;}
+    navigator.clipboard.writeText(JSON.stringify(stripMeta(records[idx]),null,2)).then(function(){
+      b.textContent='Copied';setTimeout(function(){b.textContent='Copy this record';},1200);
+    }).catch(function(){b.textContent='Copy unavailable — download instead';});
+  };
   document.getElementById("downloadBtn").onclick=function(){dl(records[idx],"record-"+(idx+1)+".json");};
   document.getElementById("downloadAllBtn").onclick=function(){dl(records,"reviewed-all.json");};
   function stripMeta(o){ if(Array.isArray(o)) return o.map(stripMeta); if(o&&typeof o==="object"){ var c={}; Object.keys(o).forEach(function(k){ if(k!=="__nteeFrom" && k!=="__sourceCheck") c[k]=o[k]; }); return c; } return o; }
   function dl(obj,name){var b=new Blob([JSON.stringify(stripMeta(obj),null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+
+  function startPortfolioDemo(){
+    var sample="[\n  {\n    \"title\": \"Neighborhood Youth Literacy Grant\",\n    \"funder\": \"Riverbend Community Foundation\",\n    \"status\": \"open\",\n    \"currency\": \"usd\",\n    \"fundingAmountLow\": 5000,\n    \"fundingAmountHigh\": 25000,\n    \"fundingPeriod\": \"1-year\",\n    \"currentStage\": \"application\",\n    \"cycleName\": \"Spring 2027\",\n    \"cycleIdentifierId\": \"spring-2027\",\n    \"for\": [\n      \"Nonprofits\"\n    ],\n    \"beneficiaries\": \"Children and youth\",\n    \"keywords\": [\n      \"literacy\",\n      \"education\",\n      \"after-school\"\n    ],\n    \"areaOfInterest\": [\n      \"B\"\n    ],\n    \"areasOfFocus\": [\n      \"Early literacy\"\n    ],\n    \"fundingVehicles\": [\n      \"Grant\"\n    ],\n    \"countries\": [\n      \"United States\"\n    ],\n    \"states\": [\n      \"Michigan\"\n    ],\n    \"mainOpportunityLink\": \"https://example.org/grants/youth-literacy\",\n    \"applicationLink\": \"https://example.org/apply\",\n    \"summary\": \"Supports local nonprofits that help children build reading skills through tutoring, family literacy nights, and after-school programs in the Riverbend service area.\",\n    \"eligibility\": \"Registered 501(c)(3) organizations serving Riverbend County.\",\n    \"howToApply\": \"Submit the online application before the spring deadline.\",\n    \"isMultiAreaOpportunity\": false,\n    \"isInviteOnly\": false,\n    \"smallBusinessSetAside\": false,\n    \"isRollingOpportunity\": false,\n    \"isContactFunderOpportunity\": false,\n    \"contactInformation\": {\n      \"name\": \"Jordan Ellis\",\n      \"designation\": \"Program Officer\",\n      \"telephone\": \"\",\n      \"email\": \"grants@example.org\",\n      \"mailingAddress\": \"\"\n    },\n    \"fundingMechanism\": [\n      {\n        \"parentFundingMechanism\": \"Project and Program Support\",\n        \"subFundingMechanism\": [\n          \"Project / Program Grant\"\n        ]\n      }\n    ],\n    \"dueDate\": {\n      \"openingDate\": {\n        \"date\": \"2027-01-15\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      },\n      \"applicationDeadline\": {\n        \"date\": \"2027-03-31\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      }\n    },\n    \"stages\": [\n      {\n        \"name\": \"Application\",\n        \"dateCategory\": \"applicationDeadline\",\n        \"isStageApplicable\": true,\n        \"isTemplateExplicit\": false,\n        \"template\": \"\",\n        \"solicitationLinks\": [],\n        \"additionalLinks\": []\n      }\n    ]\n  },\n  {\n    \"title\": \"Community Garden Mini-Grants\",\n    \"funder\": \"Lakeshore Giving Circle\",\n    \"status\": \"opened\",\n    \"currency\": \"usd\",\n    \"fundingAmountLow\": 500,\n    \"fundingAmountHigh\": \"2k\",\n    \"currentStage\": \"pending\",\n    \"for\": \"Nonprofits\",\n    \"mainOpportunityLink\": \"example.org/gardens\",\n    \"eligibility\": \"\",\n    \"isInviteOnly\": \"yes\",\n    \"isMultiAreaOpportunity\": false,\n    \"smallBusinessSetAside\": false,\n    \"isRollingOpportunity\": true,\n    \"isContactFunderOpportunity\": false\n  },\n  {\n    \"title\": \"Arts Access Fund\",\n    \"funder\": \"Harbor Arts Alliance\",\n    \"status\": \"forecasted\",\n    \"currency\": \"usd\",\n    \"summary\": \"Funds arts programs that reduce cost barriers for first-time visitors.\",\n    \"eligibility\": \"Nonprofits and fiscally sponsored projects.\",\n    \"isMultiAreaOpportunity\": false,\n    \"isInviteOnly\": false,\n    \"smallBusinessSetAside\": false,\n    \"isRollingOpportunity\": false,\n    \"isContactFunderOpportunity\": true,\n    \"dueDate\": {\n      \"openingDate\": {\n        \"date\": \"2027-06-01\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      },\n      \"applicationDeadline\": {\n        \"date\": \"2027-04-15\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      }\n    },\n    \"fundingAmountLow\": 40000,\n    \"fundingAmountHigh\": 10000\n  }\n]";
+    try{sample=sessionStorage.getItem('ibrahim-qa-demo')||sample;}catch(e){}
+    try{input.value=sample;run();buildBatch();document.getElementById('demoGuide').hidden=false;}
+    catch(e){parseErr.textContent='The samples could not load. Paste JSON and choose Run QA to continue.';parseErr.style.display='block';}
+  }
+  document.getElementById('demoInspect').onclick=function(){
+    if(records.length<2)return;
+    idx=1;renderRecord();onlyProblems.checked=true;applyFilter();
+    document.getElementById('verdict').setAttribute('tabindex','-1');
+    document.getElementById('verdict').focus({preventScroll:true});
+    document.getElementById('verdict').scrollIntoView({behavior:'auto',block:'start'});
+  };
+  if(new URLSearchParams(location.search).get('demo')==='1')startPortfolioDemo();
 })();
 </script>
 </body>

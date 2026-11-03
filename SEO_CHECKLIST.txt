@@ -1,0 +1,36 @@
+SEO IMPLEMENTATION AND PUBLIC-LAUNCH CHECKLIST
+
+Primary public domain: https://ibrahimjaved20.github.io/
+
+Implemented:
+- Fifteen real, independently addressable static pages.
+- Unique descriptive titles and meta descriptions.
+- One visible H1 per page and meaningful project headings.
+- Crawlable HTML links and relevant image alt text.
+- Page-specific canonical URLs and social-share metadata.
+- Truthful Person, WebSite, WebPage, CreativeWork and breadcrumb JSON-LD.
+- Optimized screenshot previews from actual tools and analyses.
+- robots.txt and a valid sitemap.xml listing the public portfolio pages.
+- Natural keyword coverage: research analyst, data analyst, Lahore, Pakistan,
+  Python, SQL, Excel, grant research, market research, data quality and workflow automation.
+
+To make these improvements available to Google:
+1. Upload every file and folder in this package to the GitHub Pages repository root.
+2. Confirm the public site and individual project URLs load successfully.
+3. Verify the site in your own Google Search Console account.
+4. Submit https://ibrahimjaved20.github.io/sitemap.xml in Search Console.
+5. Request indexing for the homepage and review Google indexing reports.
+
+The ChatGPT Sites demo stays private and requires sign-in. Google cannot crawl
+login-protected pages. This preview is not a substitute for publishing the
+updated files on the public GitHub Pages domain.
+
+Search rankings and indexing are controlled by search engines and are not
+guaranteed. Search Console verification and submission have not been performed.
+The print-only resume and the standalone QA utility retain noindex; the public
+project landing pages describing those capabilities are included in the sitemap.
+
+Primary references:
+https://developers.google.com/search/docs/essentials/technical
+https://developers.google.com/search/docs/crawling-indexing/links-crawlable
+https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics

@@ -1,0 +1,7 @@
+{
+  "name": "ibrahim-javed-representative",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-03",
+  "ai": {"binding": "AI"},
+  "observability": {"enabled": false}
+}

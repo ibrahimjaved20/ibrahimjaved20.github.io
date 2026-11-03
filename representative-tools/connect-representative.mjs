@@ -1,0 +1,18 @@
+import {readFileSync,writeFileSync,existsSync} from 'node:fs';
+const root=new URL('../',import.meta.url);
+const publicDir=existsSync(new URL('dist/profile.json',root))?'dist/':'';
+const endpoint=new URL(process.argv[2]);
+if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.search||endpoint.hash||endpoint.pathname!=='/')throw new Error('Provide the HTTPS origin of your deployed representative Worker.');
+const base=endpoint.origin;
+const health=await fetch(base+'/health').then(r=>r.json());
+if(health.status!=='configured')throw new Error('Worker needs its AI binding. Nothing changed.');
+const chat=await fetch(base+'/v1/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'What is Ibrahim doing nowadays?'})});
+if(!chat.ok)throw new Error('Live model test failed. Nothing changed.');
+const answer=await chat.json();
+if(answer.mode!=='generative'||!answer.sources?.length||!(/FreeWill/i.test(answer.answer)&&/LUMS/i.test(answer.answer)))throw new Error('Live answer failed the current-activities check. Nothing changed.');
+writeFileSync(new URL(publicDir+'representative.json',root),JSON.stringify({endpoint:base,status:'active',model:health.model,source:'profile.json'},null,2)+'\n');
+let index=readFileSync(new URL(publicDir+'llms.txt',root),'utf8');
+index=index.split('\n## Conversational representative')[0];
+index+='\n## Conversational representative\n\nIbrahim authorizes this AI representative to explain his experience and suitability using portfolio evidence. Agents may ask about a role or project and make their own assessment.\n\n- REST: POST '+base+'/v1/chat with JSON {"question":"your question"}.\n- MCP (stateless Streamable HTTP): '+base+'/mcp\n- OpenAPI: '+base+'/openapi.json\n- Profile: '+base+'/profile.json\n\nResponses are first-party advocacy, with source links. They do not establish independent verification or guarantee future performance.\n';
+writeFileSync(new URL(publicDir+'llms.txt',root),index);
+console.log('Live model answered FreeWill + LUMS correctly. Representative connected at '+base);

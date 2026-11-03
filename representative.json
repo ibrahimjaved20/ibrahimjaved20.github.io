@@ -1,0 +1,7 @@
+{
+  "endpoint": "https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev",
+  "status": "active",
+  "model": "@cf/qwen/qwen3-30b-a3b-fp8",
+  "source": "profile.json",
+  "verified_on": "2026-11-04"
+}

@@ -1,121 +1,24 @@
 (function(){
-  function $(id){ return document.getElementById(id); }
-  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  /* ---------- theme ---------- */
-  var root = document.documentElement, themeBtn = $("themeBtn");
-  function isDark(){
-    var t = root.getAttribute("data-theme");
-    if (t) return t === "dark";
-    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  }
-  function syncTheme(){ themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
-  themeBtn.addEventListener("click", function(){ root.setAttribute("data-theme", isDark() ? "light" : "dark"); syncTheme(); });
-  syncTheme();
-
-  /* ---------- navigation and deep links ---------- */
-  var ROUTES = {
-    home:['home','top'], top:['home','top'],
-    cases:['cases','case-studies'], 'case-studies':['cases','case-studies'],
-    'qa-tool':['cases','qa-tool'], qa:['cases','qa-tool'],
-    'test-bed':['cases','test-bed'], 'test-sites':['cases','test-bed'],
-    revcloud:['cases','revcloud'], 'market-model':['cases','market-model'], market:['cases','market-model'],
-    projects:['projects','projects'], 'projects-excel':['projects','projects-excel'],
-    'projects-python':['projects','projects-python'], 'projects-stata':['projects','projects-stata'],
-    'projects-additional':['projects','projects-additional'], toolkit:['projects','toolkit'],
-    excel:['projects','excel'], python:['projects','projects-python'],
-    houses:['projects','pane-houses'], hoi:['projects','pane-hoi'],
-    emp:['projects','pane-emp'], rev:['projects','pane-rev'], stata:['projects','pane-stata'],
-    experience:['about','experience'], about:['about','about']
-  };
-  var NAV_LINKS = document.querySelectorAll('.links > a, .nav-dropdown > a');
-  function showTab(tab){
-    document.querySelectorAll('.tab-panel').forEach(function(panel){
-      var on=panel.id==='tab-'+tab; panel.classList.toggle('on',on); panel.hidden=!on;
-    });
-    var active=(tab==='excel'||tab==='python')?'projects':tab;
-    NAV_LINKS.forEach(function(link){
-      if(link.getAttribute('data-s')===active)link.setAttribute('aria-current','page');
-      else link.removeAttribute('aria-current');
-    });
-  }
-  function closeMenus(){
-    document.querySelectorAll('.nav-dropdown').forEach(function(group){
-      group.classList.remove('is-open'); group.querySelector('.menu-toggle').setAttribute('aria-expanded','false');
-    });
-  }
-  function go(id,opts){
-    opts=opts||{}; var route=ROUTES[id]; if(!route)return false;
-    showTab(route[0]);
-    if(!opts.noHash && location.hash.slice(1)!==id)history.pushState(null,'','#'+id);
-    closeMenus();
-    if(opts.scroll!==false){
-      var target=$(route[1]);
-      if(target && route[0]!=='home')target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
-      else window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
-    }
-    return true;
-  }
-  document.querySelectorAll('a[data-s]').forEach(function(link){
-    link.addEventListener('click',function(event){
-      var id=this.getAttribute('data-pane')||this.getAttribute('data-s');
-      if(ROUTES[id]){event.preventDefault();go(id);}
-    });
-  });
-  document.querySelectorAll('.nav-dropdown').forEach(function(group){
-    var button=group.querySelector('.menu-toggle');
-    button.addEventListener('click',function(event){
-      var open=event.pointerType==='mouse'?true:!group.classList.contains('is-open');closeMenus();
-      group.classList.toggle('is-open',open);button.setAttribute('aria-expanded',String(open));
-    });
-    group.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse'){closeMenus();group.classList.add('is-open');button.setAttribute('aria-expanded','true');}});
-    group.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'){group.classList.remove('is-open');button.setAttribute('aria-expanded','false');}});
-    group.addEventListener('keydown',function(e){
-      if(e.key==='Escape'){closeMenus();button.focus();}
-      if(e.key==='ArrowDown' && (e.target===button || e.target===group.querySelector('a'))){
-        e.preventDefault();closeMenus();group.classList.add('is-open');button.setAttribute('aria-expanded','true');group.querySelector('.dropdown-menu a').focus();
-      }
-    });
-    group.addEventListener('focusout',function(e){if(!group.contains(e.relatedTarget)){group.classList.remove('is-open');button.setAttribute('aria-expanded','false');}});
-  });
-  document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))closeMenus();});
-  function restoreRoute(){var id=location.hash.slice(1);go(ROUTES[id]?id:'home',{noHash:true});}
-  window.addEventListener('popstate',restoreRoute);
-  window.addEventListener('hashchange',restoreRoute);
-  document.querySelectorAll('.info-trigger').forEach(function(button){
-    button.addEventListener('click',function(){button.setAttribute('aria-expanded',button.getAttribute('aria-expanded')==='true'?'false':'true');});
-    button.addEventListener('keydown',function(e){if(e.key==='Escape')button.setAttribute('aria-expanded','false');});
-  });
-  if ("IntersectionObserver" in window){
-    var grow = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){ if (en.isIntersecting){ en.target.classList.add("in"); grow.unobserve(en.target); } });
-    }, {threshold: .35});
-    var bars = document.querySelectorAll("[data-ba]");
-    for (var b = 0; b < bars.length; b++) grow.observe(bars[b]);
-  } else {
-    var allBars = document.querySelectorAll("[data-ba]");
-    for (var q = 0; q < allBars.length; q++) allBars[q].classList.add("in");
-  }
-
-  /* ---------- count-up (one page-load moment) ---------- */
+  function $(id){return document.getElementById(id)}
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root=document.documentElement,themeBtn=$('themeBtn');
+  try{if(localStorage.getItem('portfolio-theme-v2'))root.setAttribute('data-theme',localStorage.getItem('portfolio-theme-v2'))}catch(e){}
+  function syncTheme(){if(themeBtn)themeBtn.textContent=root.getAttribute('data-theme')==='dark'?'Light mode':'Dark mode'}
+  if(themeBtn)themeBtn.addEventListener('click',function(){root.setAttribute('data-theme',root.getAttribute('data-theme')==='dark'?'light':'dark');try{localStorage.setItem('portfolio-theme-v2',root.getAttribute('data-theme'))}catch(e){}syncTheme()});syncTheme();
+  var legacy={"qa-tool": "grant-data-qa.html", "revcloud": "campaign-analytics.html", "market-model": "pakistan-market-sizing.html", "test-bed": "auto-update-flow.html", "excel": "philip-morris-valuation.html", "houses": "house-price-regression.html", "hoi": "price-demand-analysis.html", "emp": "salary-regression.html", "rev": "revenue-forecasting.html", "stata": "pakistan-fintech-research.html", "home": "index.html", "top": "index.html", "cases": "work.html", "case-studies": "work.html", "projects": "analysis.html", "about": "about.html", "experience": "about.html#experience", "projects-excel": "analysis.html?category=finance", "projects-python": "analysis.html?category=python", "projects-stata": "analysis.html?category=research", "projects-additional": "work.html", "toolkit": "about.html#skills", "qa": "grant-data-qa.html", "test-sites": "auto-update-test-sites.html", "market": "pakistan-market-sizing.html", "python": "analysis.html?category=python"};
+  if((location.pathname.endsWith('/')||location.pathname.endsWith('/index.html')) && location.hash && legacy[location.hash.slice(1)]){location.replace(legacy[location.hash.slice(1)]);return}
+  function filter(category){var count=0;document.querySelectorAll('.academic-list [data-category]').forEach(function(card){card.hidden=category!=='all'&&card.dataset.category!==category;if(!card.hidden)count++});document.querySelectorAll('[data-work-filter]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.workFilter===category))});if($('filterStatus'))$('filterStatus').textContent=count+' '+(count===1?'project':'projects')}
+  document.querySelectorAll('[data-work-filter]').forEach(function(b){b.addEventListener('click',function(){filter(b.dataset.workFilter)})});
+  var filterParam=new URLSearchParams(location.search).get('category');if(['finance','python','research'].includes(filterParam))filter(filterParam);
+  document.querySelectorAll('.info-trigger').forEach(function(b){b.addEventListener('click',function(){b.setAttribute('aria-expanded',b.getAttribute('aria-expanded')==='true'?'false':'true')});b.addEventListener('keydown',function(e){if(e.key==='Escape')b.setAttribute('aria-expanded','false')})});
+  document.querySelectorAll('[data-ba]').forEach(function(b){b.classList.add('in')});
+  /* Stable values remain readable during fast scanning and assistive announcements. */
   function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
-  var counters = document.querySelectorAll(".countup");
-  for (var c = 0; c < counters.length; c++){
-    (function(el){
-      var to = Number(el.getAttribute("data-to")), pre = el.getAttribute("data-prefix") || "", suf = el.getAttribute("data-suffix") || "";
-      if (reduce){ el.textContent = pre + fmt(to) + suf; return; }
-      var start = null, dur = 1400;
-      function tick(ts){
-        if (start === null) start = ts;
-        var p = Math.min(1, (ts - start) / dur), eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = pre + fmt(to * eased) + suf;
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      el.textContent = pre + "0" + suf;
-      requestAnimationFrame(tick);
-    })(counters[c]);
-  }
+  document.querySelectorAll('.countup').forEach(function(el){
+    el.textContent=(el.getAttribute('data-prefix')||'')+fmt(Number(el.getAttribute('data-to')))+(el.getAttribute('data-suffix')||'');
+  });
 
+  if($('inAdults')){
   /* ---------- editable market model ---------- */
   var PRESETS = {
     pakistan:  {adults:72000000, gym:1},
@@ -159,6 +62,9 @@
   $("resetModel").addEventListener("click", function(){ loadPreset(currentPreset); });
   loadPreset("pakistan");
 
+
+  }
+  if($('simCase')){
   /* ---------- test-case walkthrough (generic examples) ---------- */
   var CASES = {
     deadline:{branch:"test-case/application-deadline", change:"the application deadline changed"},
@@ -185,6 +91,9 @@
     simMerge.disabled = false; simSel.disabled = false; simRun.disabled = true; simReset.disabled = true;
   });
 
+
+  }
+  if($('dash')){
   /* ---------- illustrative dashboard (invented data) ---------- */
   (function(){
     var DAYS = 90, NS = "http://www.w3.org/2000/svg";
@@ -318,6 +227,9 @@
 
 
 
+
+  }
+  if($('excel')){
   /* ---------- Excel section: Philip Morris Pakistan ---------- */
   var FB = {"Stock in trade": {"base": 12033405, "rows": [["Economic", "Inflation: cost of raw and packing materials", 5, 0.25], ["Economic", "Taxation on raw materials", 20, 0.1], ["Industry", "Illicit trade", 8, 0.15], ["Company", "Increased stock holding", 20, 0.15], ["Company", "Product line expansion", 40, 0.35]], "report": 14614570.37}, "Trade and other payables": {"base": 13504425, "rows": [["Economic", "Improved conditions (inflation)", -5, 0.05], ["Economic", "Increased taxes and regulatory pressure", 15, 0.2], ["Company", "Increase in advances from customers", 13, 0.25], ["Company", "Increased raw material requirements", 18, 0.3], ["Company", "Focus on sustainability may extend credit", 5, 0.2]], "report": 15178973.7}, "Cash and bank balances": {"base": 9062895, "rows": [["Company", "Selling off assets", 15, 0.5], ["Company", "Product line expansion", 15, 0.25], ["Company", "Unpaid dividends", 60, 0.25]], "report": 11441904.94}, "Administrative expenses": {"base": 1838038, "rows": [["Economic", "Professional service costs", 20, 0.2], ["Economic", "Rising energy tariffs on office operations", 15, 0.2], ["Economic", "Wage inflation", 10, 0.2], ["Company", "Depreciation", 30, 0.25], ["Company", "Reduced philanthropy", -12, 0.15]], "report": 2108229.586}, "Other income": {"base": 3409915, "rows": [["Economic", "Interest rates", 15, 0.3], ["Company", "Disposal of assets", 40, 0.7]], "report": 4518137.375}};
   var FB_ORDER = ["Stock in trade","Trade and other payables","Cash and bank balances","Administrative expenses","Other income"];
@@ -476,8 +388,11 @@
     build("exIS", "is"); build("exBS", "bs"); draw();
   })();
 
+
+  }
   /* ---------- Python analysis section ---------- */
 
+  if($('hSize')){
   /* houses: estimator from the log-log model */
   var HT = {Condo:0, Ranch:-1.0366, Split:-0.7404, Townhouse:-0.3648};
   var HMEAN = 706970;
@@ -504,6 +419,9 @@
     lb.appendChild(row);
   });
 
+
+  }
+  if($('hoiChart')){
   /* Hind Oil style pricing simulation */
   var HOI = {"base": [[91.38, 13012.990318], [92.38, 12876.373552], [93.38, 12739.756787], [94.38, 12603.140021], [95.38, 12466.523256], [96.38, 12329.90649], [97.38, 12193.289725], [98.38, 12056.672959], [99.38, 11920.056194], [100.38, 11783.439428], [101.38, 11646.822663], [102.38, 11510.205897], [103.38, 11373.589132], [104.38, 11236.972366], [105.38, 11100.355601], [106.38, 10963.738835], [107.38, 10827.12207], [108.38, 10690.505304], [109.38, 10553.888539], [110.38, 10417.271773]], "month": [[91.38, 13109.169052], [92.38, 12988.015003], [93.38, 12866.860954], [94.38, 12745.706904], [95.38, 12624.552855], [96.38, 12503.398806], [97.38, 12382.244757], [98.38, 12261.090708], [99.38, 12139.936658], [100.38, 12018.782609], [101.38, 11897.62856], [102.38, 11776.474511], [103.38, 11655.320462], [104.38, 11534.166412], [105.38, 11413.012363], [106.38, 11291.858314], [107.38, 11170.704265], [108.38, 11049.550215], [109.38, 10928.396166], [110.38, 10807.242117]]};
   var hoiState = {m:"base"};
@@ -542,6 +460,9 @@
   for (var hb = 0; hb < hmb.length; hb++) hmb[hb].addEventListener("click", function(){ hoiState.m = this.getAttribute("data-m"); hoiRender(); });
   hoiRender();
 
+
+  }
+  if($('forest')){
   /* salary: forest plot of regression coefficients */
   (function(){
     var NS = "http://www.w3.org/2000/svg", T95 = 1.9626;
@@ -586,6 +507,9 @@
     });
   })();
 
+
+  }
+  if($('madBars')){
   /* revenue: model comparison bars */
   (function(){
     var M = [["AR(2)", 2.078956], ["AR(3)", 2.209311], ["AR(1)", 2.450292], ["Quadratic trend", 4.817020], ["Linear trend", 5.031316], ["Exponential trend", 5.394838]];
@@ -598,6 +522,9 @@
   })();
 
 
+
+  }
+  if($('stForest')){
   /* ---------- Stata thesis: odds-ratio explorer ---------- */
   (function(){
     var ST = {"models": {"all": {"1": [{"v": "Technology", "b": 0.617, "se": 0.133, "s": "***"}, {"v": "Awareness", "b": 0.689, "se": 0.379, "s": "*"}, {"v": "FintechUsage", "b": 0.864, "se": 0.298, "s": "***"}, {"v": "Security", "b": 0.47, "se": 0.175, "s": "***"}, {"v": "reliability", "b": 0.352, "se": 0.184, "s": "*"}, {"v": "losses", "b": -0.265, "se": 0.146, "s": "*"}, {"v": "Privacy", "b": 0.245, "se": 0.152, "s": ""}, {"v": "ease", "b": 0.0607, "se": 0.162, "s": ""}, {"v": "convenience", "b": 0.75, "se": 0.168, "s": "***"}, {"v": "socialmedia", "b": -0.157, "se": 0.133, "s": ""}], "2": [{"v": "Technology", "b": 0.404, "se": 0.153, "s": "***"}, {"v": "Awareness", "b": 0.781, "se": 0.385, "s": "**"}, {"v": "FintechUsage", "b": 0.741, "se": 0.313, "s": "**"}, {"v": "Security", "b": 0.526, "se": 0.18, "s": "***"}, {"v": "reliability", "b": 0.236, "se": 0.187, "s": ""}, {"v": "losses", "b": -0.191, "se": 0.153, "s": ""}, {"v": "Privacy", "b": 0.204, "se": 0.157, "s": ""}, {"v": "ease", "b": 0.185, "se": 0.169, "s": ""}, {"v": "convenience", "b": 0.676, "se": 0.174, "s": "***"}, {"v": "socialmedia", "b": -0.0759, "se": 0.14, "s": ""}, {"v": "Age", "b": -0.549, "se": 0.274, "s": "**"}, {"v": "Gender", "b": -0.651, "se": 0.249, "s": "***"}, {"v": "Unemployed", "b": 0.257, "se": 0.605, "s": ""}, {"v": "Housewife", "b": 0.676, "se": 0.705, "s": ""}, {"v": "Public", "b": 0.481, "se": 0.444, "s": ""}, {"v": "Private", "b": 0.978, "se": 0.421, "s": "**"}, {"v": "Selfemployed", "b": 0.732, "se": 0.45, "s": ""}, {"v": "Education", "b": 0.344, "se": 0.179, "s": "*"}], "3": [{"v": "Technology", "b": 0.347, "se": 0.159, "s": "**"}, {"v": "Awareness", "b": 0.751, "se": 0.387, "s": "*"}, {"v": "FintechUsage", "b": 0.755, "se": 0.317, "s": "**"}, {"v": "Security", "b": 0.526, "se": 0.182, "s": "***"}, {"v": "reliability", "b": 0.2, "se": 0.189, "s": ""}, {"v": "losses", "b": -0.229, "se": 0.155, "s": ""}, {"v": "Privacy", "b": 0.212, "se": 0.157, "s": ""}, {"v": "ease", "b": 0.168, "se": 0.168, "s": ""}, {"v": "convenience", "b": 0.624, "se": 0.179, "s": "***"}, {"v": "socialmedia", "b": -0.1, "se": 0.144, "s": ""}, {"v": "Age", "b": -0.541, "se": 0.275, "s": "**"}, {"v": "Gender", "b": -0.715, "se": 0.253, "s": "***"}, {"v": "Unemployed", "b": 0.158, "se": 0.614, "s": ""}, {"v": "Housewife", "b": 0.712, "se": 0.716, "s": ""}, {"v": "Public", "b": 0.486, "se": 0.444, "s": ""}, {"v": "Private", "b": 0.968, "se": 0.422, "s": "**"}, {"v": "Selfemployed", "b": 0.732, "se": 0.454, "s": ""}, {"v": "Education", "b": 0.314, "se": 0.181, "s": "*"}, {"v": "Income", "b": 0.155, "se": 0.109, "s": ""}, {"v": "Family", "b": 0.17, "se": 0.151, "s": ""}], "4": [{"v": "Technology", "b": 0.327, "se": 0.16, "s": "**"}, {"v": "Awareness", "b": 0.795, "se": 0.391, "s": "**"}, {"v": "FintechUsage", "b": 0.709, "se": 0.319, "s": "**"}, {"v": "Security", "b": 0.501, "se": 0.183, "s": "***"}, {"v": "reliability", "b": 0.191, "se": 0.19, "s": ""}, {"v": "losses", "b": -0.219, "se": 0.156, "s": ""}, {"v": "Privacy", "b": 0.206, "se": 0.158, "s": ""}, {"v": "ease", "b": 0.151, "se": 0.169, "s": ""}, {"v": "convenience", "b": 0.645, "se": 0.181, "s": "***"}, {"v": "socialmedia", "b": -0.087, "se": 0.145, "s": ""}, {"v": "Age", "b": -0.464, "se": 0.282, "s": "*"}, {"v": "Gender", "b": -0.727, "se": 0.254, "s": "***"}, {"v": "Unemployed", "b": 0.0939, "se": 0.613, "s": ""}, {"v": "Housewife", "b": 0.628, "se": 0.721, "s": ""}, {"v": "Public", "b": 0.586, "se": 0.45, "s": ""}, {"v": "Private", "b": 0.95, "se": 0.421, "s": "**"}, {"v": "Selfemployed", "b": 0.764, "se": 0.453, "s": "*"}, {"v": "Education", "b": 0.314, "se": 0.181, "s": "*"}, {"v": "Income", "b": 0.154, "se": 0.109, "s": ""}, {"v": "Family", "b": 0.188, "se": 0.152, "s": ""}, {"v": "location", "b": 0.439, "se": 0.325, "s": ""}]}, "male": {"1": [{"v": "Technology", "b": 0.673, "se": 0.219, "s": "***"}, {"v": "Awareness", "b": 0.43, "se": 0.757, "s": ""}, {"v": "FintechUsage", "b": 1.213, "se": 0.628, "s": "*"}, {"v": "Security", "b": 0.49, "se": 0.258, "s": "*"}, {"v": "reliability", "b": 0.101, "se": 0.278, "s": ""}, {"v": "losses", "b": -0.0959, "se": 0.227, "s": ""}, {"v": "Privacy", "b": 0.387, "se": 0.251, "s": ""}, {"v": "ease", "b": 0.329, "se": 0.238, "s": ""}, {"v": "convenience", "b": 0.493, "se": 0.233, "s": "**"}, {"v": "socialmedia", "b": -0.336, "se": 0.199, "s": "*"}], "2": [{"v": "Technology", "b": 0.517, "se": 0.259, "s": "**"}, {"v": "Awareness", "b": 0.814, "se": 0.812, "s": ""}, {"v": "FintechUsage", "b": 1.428, "se": 0.671, "s": "**"}, {"v": "Security", "b": 0.458, "se": 0.274, "s": "*"}, {"v": "reliability", "b": 0.201, "se": 0.307, "s": ""}, {"v": "losses", "b": -0.0445, "se": 0.245, "s": ""}, {"v": "Privacy", "b": 0.45, "se": 0.262, "s": "*"}, {"v": "ease", "b": 0.439, "se": 0.249, "s": "*"}, {"v": "convenience", "b": 0.314, "se": 0.252, "s": ""}, {"v": "socialmedia", "b": -0.269, "se": 0.212, "s": ""}, {"v": "Age", "b": -0.854, "se": 0.542, "s": ""}, {"v": "Unemployed", "b": 17.32, "se": 1007.0, "s": ""}, {"v": "Housewife", "b": 0.481, "se": 1.69, "s": ""}, {"v": "Public", "b": 0.969, "se": 1.037, "s": ""}, {"v": "Private", "b": 0.792, "se": 0.672, "s": ""}, {"v": "Selfemployed", "b": 0.42, "se": 0.66, "s": ""}, {"v": "Education", "b": 0.54, "se": 0.325, "s": "*"}], "3": [{"v": "Technology", "b": 0.189, "se": 0.275, "s": ""}, {"v": "Awareness", "b": 1.358, "se": 0.85, "s": ""}, {"v": "FintechUsage", "b": 1.132, "se": 0.719, "s": ""}, {"v": "Security", "b": 0.3, "se": 0.31, "s": ""}, {"v": "reliability", "b": 0.223, "se": 0.32, "s": ""}, {"v": "losses", "b": -0.165, "se": 0.255, "s": ""}, {"v": "Privacy", "b": 0.57, "se": 0.277, "s": "**"}, {"v": "ease", "b": 0.501, "se": 0.262, "s": "*"}, {"v": "convenience", "b": 0.267, "se": 0.26, "s": ""}, {"v": "socialmedia", "b": -0.364, "se": 0.221, "s": "*"}, {"v": "Age", "b": -0.975, "se": 0.55, "s": "*"}, {"v": "Unemployed", "b": 17.03, "se": 1001.0, "s": ""}, {"v": "Housewife", "b": 0.709, "se": 1.773, "s": ""}, {"v": "Public", "b": 1.351, "se": 1.066, "s": ""}, {"v": "Private", "b": 0.589, "se": 0.69, "s": ""}, {"v": "Selfemployed", "b": -0.0357, "se": 0.667, "s": ""}, {"v": "Education", "b": 0.708, "se": 0.338, "s": "**"}, {"v": "Income", "b": 0.602, "se": 0.18, "s": "***"}, {"v": "Family", "b": 0.395, "se": 0.245, "s": ""}], "4": [{"v": "Technology", "b": 0.186, "se": 0.274, "s": ""}, {"v": "Awareness", "b": 1.436, "se": 0.846, "s": "*"}, {"v": "FintechUsage", "b": 1.112, "se": 0.715, "s": ""}, {"v": "Security", "b": 0.324, "se": 0.311, "s": ""}, {"v": "reliability", "b": 0.203, "se": 0.318, "s": ""}, {"v": "losses", "b": -0.161, "se": 0.255, "s": ""}, {"v": "Privacy", "b": 0.604, "se": 0.28, "s": "**"}, {"v": "ease", "b": 0.541, "se": 0.266, "s": "**"}, {"v": "convenience", "b": 0.261, "se": 0.259, "s": ""}, {"v": "socialmedia", "b": -0.377, "se": 0.221, "s": "*"}, {"v": "Age", "b": -1.01, "se": 0.554, "s": "*"}, {"v": "Unemployed", "b": 16.36, "se": 672.7, "s": ""}, {"v": "Housewife", "b": 0.395, "se": 1.795, "s": ""}, {"v": "Public", "b": 1.169, "se": 1.077, "s": ""}, {"v": "Private", "b": 0.614, "se": 0.69, "s": ""}, {"v": "Selfemployed", "b": -0.0729, "se": 0.671, "s": ""}, {"v": "Education", "b": 0.703, "se": 0.338, "s": "**"}, {"v": "Income", "b": 0.613, "se": 0.181, "s": "***"}, {"v": "Family", "b": 0.375, "se": 0.246, "s": ""}, {"v": "location", "b": -0.488, "se": 0.575, "s": ""}]}, "female": {"1": [{"v": "Technology", "b": 0.616, "se": 0.187, "s": "***"}, {"v": "Awareness", "b": 0.734, "se": 0.437, "s": "*"}, {"v": "FintechUsage", "b": 0.569, "se": 0.348, "s": ""}, {"v": "Security", "b": 0.526, "se": 0.254, "s": "**"}, {"v": "reliability", "b": 0.464, "se": 0.253, "s": "*"}, {"v": "losses", "b": -0.362, "se": 0.202, "s": "*"}, {"v": "Privacy", "b": 0.253, "se": 0.197, "s": ""}, {"v": "ease", "b": -0.178, "se": 0.239, "s": ""}, {"v": "convenience", "b": 0.986, "se": 0.259, "s": "***"}, {"v": "socialmedia", "b": -0.00348, "se": 0.189, "s": ""}], "2": [{"v": "Technology", "b": 0.428, "se": 0.214, "s": "**"}, {"v": "Awareness", "b": 0.968, "se": 0.453, "s": "**"}, {"v": "FintechUsage", "b": 0.442, "se": 0.368, "s": ""}, {"v": "Security", "b": 0.532, "se": 0.271, "s": "**"}, {"v": "reliability", "b": 0.444, "se": 0.261, "s": "*"}, {"v": "losses", "b": -0.372, "se": 0.23, "s": ""}, {"v": "Privacy", "b": 0.248, "se": 0.213, "s": ""}, {"v": "ease", "b": -0.177, "se": 0.249, "s": ""}, {"v": "convenience", "b": 1.004, "se": 0.272, "s": "***"}, {"v": "socialmedia", "b": 0.0441, "se": 0.204, "s": ""}, {"v": "Age", "b": -0.379, "se": 0.348, "s": ""}, {"v": "Unemployed", "b": -0.595, "se": 0.689, "s": ""}, {"v": "Housewife", "b": 0.533, "se": 0.794, "s": ""}, {"v": "Public", "b": 0.4, "se": 0.537, "s": ""}, {"v": "Private", "b": 1.334, "se": 0.587, "s": "**"}, {"v": "Selfemployed", "b": 1.301, "se": 0.68, "s": "*"}, {"v": "Education", "b": 0.27, "se": 0.239, "s": ""}], "3": [{"v": "Technology", "b": 0.46, "se": 0.221, "s": "**"}, {"v": "Awareness", "b": 1.016, "se": 0.459, "s": "**"}, {"v": "FintechUsage", "b": 0.404, "se": 0.371, "s": ""}, {"v": "Security", "b": 0.505, "se": 0.274, "s": "*"}, {"v": "reliability", "b": 0.477, "se": 0.265, "s": "*"}, {"v": "losses", "b": -0.356, "se": 0.231, "s": ""}, {"v": "Privacy", "b": 0.254, "se": 0.213, "s": ""}, {"v": "ease", "b": -0.17, "se": 0.249, "s": ""}, {"v": "convenience", "b": 1.043, "se": 0.282, "s": "***"}, {"v": "socialmedia", "b": 0.0529, "se": 0.211, "s": ""}, {"v": "Age", "b": -0.378, "se": 0.348, "s": ""}, {"v": "Unemployed", "b": -0.536, "se": 0.7, "s": ""}, {"v": "Housewife", "b": 0.497, "se": 0.804, "s": ""}, {"v": "Public", "b": 0.393, "se": 0.538, "s": ""}, {"v": "Private", "b": 1.353, "se": 0.589, "s": "**"}, {"v": "Selfemployed", "b": 1.253, "se": 0.688, "s": "*"}, {"v": "Education", "b": 0.32, "se": 0.246, "s": ""}, {"v": "Income", "b": -0.111, "se": 0.154, "s": ""}, {"v": "Family", "b": -0.102, "se": 0.234, "s": ""}], "4": [{"v": "Technology", "b": 0.372, "se": 0.225, "s": "*"}, {"v": "Awareness", "b": 1.098, "se": 0.463, "s": "**"}, {"v": "FintechUsage", "b": 0.322, "se": 0.374, "s": ""}, {"v": "Security", "b": 0.453, "se": 0.277, "s": ""}, {"v": "reliability", "b": 0.409, "se": 0.27, "s": ""}, {"v": "losses", "b": -0.292, "se": 0.232, "s": ""}, {"v": "Privacy", "b": 0.264, "se": 0.215, "s": ""}, {"v": "ease", "b": -0.17, "se": 0.252, "s": ""}, {"v": "convenience", "b": 1.077, "se": 0.286, "s": "***"}, {"v": "socialmedia", "b": 0.068, "se": 0.213, "s": ""}, {"v": "Age", "b": -0.241, "se": 0.359, "s": ""}, {"v": "Unemployed", "b": -0.688, "se": 0.704, "s": ""}, {"v": "Housewife", "b": 0.156, "se": 0.834, "s": ""}, {"v": "Public", "b": 0.59, "se": 0.55, "s": ""}, {"v": "Private", "b": 1.291, "se": 0.585, "s": "**"}, {"v": "Selfemployed", "b": 1.326, "se": 0.678, "s": "*"}, {"v": "Education", "b": 0.317, "se": 0.25, "s": ""}, {"v": "Income", "b": -0.118, "se": 0.154, "s": ""}, {"v": "Family", "b": -0.0388, "se": 0.236, "s": ""}, {"v": "location", "b": 0.885, "se": 0.444, "s": "**"}]}}, "fit": {"all": {"n": 334, "chosen": 2, "ll": [-363.953, -351.456, -349.788, -348.879], "aic": [755.906, 746.913, 747.576, 747.758], "bic": [809.262, 830.758, 839.044, 843.037], "lr": [null, "LR \u03c7\u00b2(8) = 24.99, p = 0.0016", "LR \u03c7\u00b2(2) = 3.34, p = 0.1886", "LR \u03c7\u00b2(1) = 1.82, p = 0.1776"]}, "male": {"n": 152, "chosen": 3, "ll": [-141.893, -133.508, -125.575, -125.207], "aic": [311.787, 309.015, 297.15, 298.414], "bic": [354.121, 372.517, 366.699, 370.987], "lr": [null, "LR \u03c7\u00b2(7) = 16.77, p = 0.0189", "LR \u03c7\u00b2(2) = 15.87, p = 0.0004", "LR \u03c7\u00b2(1) = 0.74, p = 0.3910"]}, "female": {"n": 182, "chosen": 1, "ll": [-211.054, -204.047, -203.719, -201.726], "aic": [450.107, 450.093, 453.438, 451.452], "bic": [494.963, 517.377, 527.13, 528.349], "lr": [null, "LR \u03c7\u00b2(7) = 14.01, p = 0.0509", "LR \u03c7\u00b2(2) = 0.66, p = 0.7205", "LR \u03c7\u00b2(1) = 3.99, p = 0.0459"]}}};
@@ -663,10 +590,19 @@
     draw();
   })();
 
+
+  }
+  if($('qaHost')){
   /* ---------- live QA tool ---------- */
   var QA_SAMPLE = "[\n  {\n    \"title\": \"Neighborhood Youth Literacy Grant\",\n    \"funder\": \"Riverbend Community Foundation\",\n    \"status\": \"open\",\n    \"currency\": \"usd\",\n    \"fundingAmountLow\": 5000,\n    \"fundingAmountHigh\": 25000,\n    \"fundingPeriod\": \"1-year\",\n    \"currentStage\": \"application\",\n    \"cycleName\": \"Spring 2027\",\n    \"cycleIdentifierId\": \"spring-2027\",\n    \"for\": [\n      \"Nonprofits\"\n    ],\n    \"beneficiaries\": \"Children and youth\",\n    \"keywords\": [\n      \"literacy\",\n      \"education\",\n      \"after-school\"\n    ],\n    \"areaOfInterest\": [\n      \"B\"\n    ],\n    \"areasOfFocus\": [\n      \"Early literacy\"\n    ],\n    \"fundingVehicles\": [\n      \"Grant\"\n    ],\n    \"countries\": [\n      \"United States\"\n    ],\n    \"states\": [\n      \"Michigan\"\n    ],\n    \"mainOpportunityLink\": \"https://example.org/grants/youth-literacy\",\n    \"applicationLink\": \"https://example.org/apply\",\n    \"summary\": \"Supports local nonprofits that help children build reading skills through tutoring, family literacy nights, and after-school programs in the Riverbend service area.\",\n    \"eligibility\": \"Registered 501(c)(3) organizations serving Riverbend County.\",\n    \"howToApply\": \"Submit the online application before the spring deadline.\",\n    \"isMultiAreaOpportunity\": false,\n    \"isInviteOnly\": false,\n    \"smallBusinessSetAside\": false,\n    \"isRollingOpportunity\": false,\n    \"isContactFunderOpportunity\": false,\n    \"contactInformation\": {\n      \"name\": \"Jordan Ellis\",\n      \"designation\": \"Program Officer\",\n      \"telephone\": \"\",\n      \"email\": \"grants@example.org\",\n      \"mailingAddress\": \"\"\n    },\n    \"fundingMechanism\": [\n      {\n        \"parentFundingMechanism\": \"Project and Program Support\",\n        \"subFundingMechanism\": [\n          \"Project / Program Grant\"\n        ]\n      }\n    ],\n    \"dueDate\": {\n      \"openingDate\": {\n        \"date\": \"2027-01-15\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      },\n      \"applicationDeadline\": {\n        \"date\": \"2027-03-31\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      }\n    },\n    \"stages\": [\n      {\n        \"name\": \"Application\",\n        \"dateCategory\": \"applicationDeadline\",\n        \"isStageApplicable\": true,\n        \"isTemplateExplicit\": false,\n        \"template\": \"\",\n        \"solicitationLinks\": [],\n        \"additionalLinks\": []\n      }\n    ]\n  },\n  {\n    \"title\": \"Community Garden Mini-Grants\",\n    \"funder\": \"Lakeshore Giving Circle\",\n    \"status\": \"opened\",\n    \"currency\": \"usd\",\n    \"fundingAmountLow\": 500,\n    \"fundingAmountHigh\": \"2k\",\n    \"currentStage\": \"pending\",\n    \"for\": \"Nonprofits\",\n    \"mainOpportunityLink\": \"example.org/gardens\",\n    \"eligibility\": \"\",\n    \"isInviteOnly\": \"yes\",\n    \"isMultiAreaOpportunity\": false,\n    \"smallBusinessSetAside\": false,\n    \"isRollingOpportunity\": true,\n    \"isContactFunderOpportunity\": false\n  },\n  {\n    \"title\": \"Arts Access Fund\",\n    \"funder\": \"Harbor Arts Alliance\",\n    \"status\": \"forecasted\",\n    \"currency\": \"usd\",\n    \"summary\": \"Funds arts programs that reduce cost barriers for first-time visitors.\",\n    \"eligibility\": \"Nonprofits and fiscally sponsored projects.\",\n    \"isMultiAreaOpportunity\": false,\n    \"isInviteOnly\": false,\n    \"smallBusinessSetAside\": false,\n    \"isRollingOpportunity\": false,\n    \"isContactFunderOpportunity\": true,\n    \"dueDate\": {\n      \"openingDate\": {\n        \"date\": \"2027-06-01\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      },\n      \"applicationDeadline\": {\n        \"date\": \"2027-04-15\",\n        \"isDayExplicit\": true,\n        \"isYearExplicit\": true\n      }\n    },\n    \"fundingAmountLow\": 40000,\n    \"fundingAmountHigh\": 10000\n  }\n]";
   var host = $("qaHost");
+  // Only fictional portfolio samples are retained; user-provided QA data is never stored.
+  try { sessionStorage.setItem('ibrahim-qa-demo',QA_SAMPLE); } catch(e) {}
+  var qaStatus=document.createElement('p');
+  qaStatus.id='qaLoadStatus';qaStatus.className='note';qaStatus.setAttribute('role','status');
+  if(host)host.parentNode.insertBefore(qaStatus,host);
   function launchQA(){
+    qaStatus.textContent='Loading the sample audit…';
     var frame = document.createElement("iframe");
     frame.className = "qa-frame";
     frame.title = "Grant opportunity QA demo with three fictional sample records";
@@ -675,13 +611,18 @@
         var doc = frame.contentDocument;
         doc.getElementById("input").value = QA_SAMPLE;
         doc.getElementById("loadBtn").click();
+        doc.getElementById("overviewBtn").click();
+        var guide=doc.getElementById('demoGuide');if(guide)guide.hidden=false;
+        qaStatus.textContent='Three fictional records audited. Open a result to inspect and correct its fields.';
         $("sampleBox").hidden = true;
       } catch (e) {
+        qaStatus.textContent='The embedded audit could not load. Open the demo full screen, or copy the sample JSON below and choose Run QA.';
         $("samplePre").textContent = QA_SAMPLE;
         $("sampleBox").hidden = false;
       }
     });
-    frame.src = "opportunity-qa.html?v=20261102";
+    frame.addEventListener('error',function(){qaStatus.textContent='The demo could not load. Open it full screen or reload the sample.';});
+    frame.src = "opportunity-qa.html?embedded=1";
     host.innerHTML = "";
     host.appendChild(frame);
     $("qaReload").hidden = false;
@@ -689,7 +630,5 @@
   $("qaLaunch").addEventListener("click", launchQA);
   $("qaReload").addEventListener("click", launchQA);
 
-  /* open the section named in the address, else the home tab */
-  var startId = location.hash.slice(1);
-  go(ROUTES[startId] ? startId : "home", {noHash: true, scroll: !!startId});
+  }
 })();

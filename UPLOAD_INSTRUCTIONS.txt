@@ -1,1 +1,18 @@
-Extract this ZIP. Upload ALL the extracted files together to the main level of your existing GitHub repository, replacing existing files. No folders are needed for this version. Commit and wait for the Pages deployment to complete.
+UPDATED PORTFOLIO — GITHUB PAGES
+
+Extract the ZIP and upload ALL website files and folders to the root of
+ibrahimjaved20.github.io. Keep the fonts and previews folders intact.
+index.html must remain at the repository root.
+
+Replace the old HTML, CSS, JavaScript and image files. Add all new project
+HTML pages, work.html, analysis.html, about.html, visual.css, robots.txt and
+sitemap.xml. No npm install or build command is needed.
+
+Wait for GitHub Pages to deploy, then hard-refresh (Ctrl+Shift+R).
+Each project now has a distinct page. The shared university source folder
+is linked once, on Analysis, rather than reused as every project's report.
+
+See SEO_CHECKLIST.txt for indexing steps. The private ChatGPT Sites demo
+is independent of the GitHub Pages deployment.
+
+This revision adds auto-update-flow.html, auto-update-test-sites.html, experience.css and experience.js. The former workflow URL redirects to the restored flow page. Keep all supporting CSS, JavaScript, fonts and previews folders.
