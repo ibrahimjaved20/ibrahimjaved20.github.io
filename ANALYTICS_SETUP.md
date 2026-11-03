@@ -22,12 +22,13 @@ Filter environment=production for the GitHub Pages website. The private demo use
 | outbound_click | External link destination and placement |
 | contact_click | Email action; actual address is not collected |
 | resume_open / resume_download / resume_print | Résumé actions |
-| chat_opened / chat_question / chat_answer / chat_fallback | Chat usage counts; answer mode only, no transcript |
+| chat_opened / chat_question / chat_answer / chat_fallback | Chat usage; chat_message contains the question/answer, with delivery mode where available |
 | illustration_changed / theme_changed | Homepage illustration and theme interactions |
 
 Active time is approximate: visible tab, activity within 30 seconds, sampled every 5 seconds. Engagement sends deltas every 30 seconds and on hide/leave; sum active_seconds to aggregate. Section time is estimated from the most visible observed section and is not eye tracking. Anonymous browser IDs may change with cleared storage or a different device.
 
-Privacy: autocapture, session recordings, heatmaps, exception capture and typed-text collection are off. URLs have query strings/fragments removed, including nested SDK person properties. The direct privacy.html page explains collection and offers an opt-out; its footer link is hidden. Do Not Track and Global Privacy Control are respected. Ad blockers and disabled tracking will reduce counts. No visitor identification form has been added.
+Privacy: automatic click/text capture, heatmaps and exception capture stay off. Session replay is enabled in code, with optional contact details and chat content visible; password inputs remain masked. Chat transcripts and optional identity details are collected separately as events/profile properties. DNT, GPC and opt-out disable tracking. The privacy page remains accessible through the chatbot.
+
 
 ## Recommended dashboard
 
@@ -41,9 +42,8 @@ Privacy: autocapture, session recordings, heatmaps, exception capture and typed-
 
 No authenticated access to the PostHog dashboard was provided, so these dashboard widgets are instructions rather than already-created account objects.
 
-## Verified
-
-The real JavaScript SDK loaded in the cloud browser. Its pageview, chatbot-usage and engagement batches received HTTP 200 responses from PostHog (/e/ and /i/v0/e/). Local test traffic was labelled environment=test. This confirms ingestion acceptance; visibility in the authenticated dashboard was not inspected. Browser opt-out reloaded the privacy page with the disabled state visible. Node checks cover payload sanitization, SDK replacement, hidden-tab time exclusion, opt-out/DNT, event allowlisting and one installation per HTML page.
+## Verification status
+The earlier package reported SDK ingestion checks. This replay update has not yet been verified in the authenticated PostHog dashboard. Local checks verify the configuration and chat layout; they are not proof of live replay ingestion.
 
 ## GitHub upload
 
@@ -51,3 +51,12 @@ Extract Ibrahim_Javed_Portfolio_Redesigned.zip first. Upload its website content
 
 ## Chat recording update
 Chat notice links to privacy.html. Optional name/email fields are submitted with a question. chat_question and chat_answer include chat_message. A supplied email is used with PostHog identify; visitor_name and visitor_email are profile properties. Names alone appear on chat_details_shared without claiming a verified identity. Visitors without details remain unidentified. Opt-out/DNT/GPC disable these analytics too. Prior statements above about transcript exclusion describe the earlier version and are superseded by this section. Live ingestion for this update has not been verified.
+
+## Enable replay in PostHog
+After deploying these files, open PostHog > Session replay > Settings (or Open replay settings from the disabled-session notice). Enable Record user sessions and review the sampling/recording rules. This website does not override dashboard sampling or quota controls. Visit the published site in a fresh session, browse and scroll for at least 20 seconds, then leave the page. Open Session replay and filter environment=production if available. Only new sessions can be recorded. Existing page_engagement events give approximate active time; replay shows behavior, not eye tracking.
+
+## Device and click analytics
+All custom events include device_type (mobile/tablet/desktop) and viewport dimensions. element_click captures link/button interaction, element ID/tag, sanitized destination, placement and pointer_type (mouse/touch/pen/keyboard/unknown). This intentionally excludes visible button text and typed input contents. Existing specific events such as project_click still work; do not add their counts to element_click, since the same action can produce both. Device classification is approximate, not a verified physical-device identity. Optional name/email, typed chat inputs and displayed messages are visible in replay. Password inputs remain masked. Break down element_click by device_type and destination in PostHog Product analytics.
+
+## Final visibility setting
+maskAllInputs=false, maskTextSelector is empty, and password inputs stay masked. No name/email/chat masking is configured. The notice and privacy page disclose visible recording. Network body/header and console capture stay off. This update includes the latest chatbot layout and supersedes prior replay/device update ZIPs.

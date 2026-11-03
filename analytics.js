@@ -23,6 +23,8 @@
     try { var u = new URL(value, location.origin); return u.origin + u.pathname; } catch (_) { return ''; }
   }
   function scrub(event) {
+    // Replay snapshots are masked by the recorder; do not rewrite their DOM schema.
+    if (event.event === '$snapshot') return event;
     function clean(props) {
       Object.keys(props).forEach(function (key) {
         if (/url|referrer/i.test(key) && typeof props[key] === 'string') props[key] = cleanURL(props[key]);
@@ -43,7 +45,19 @@
     ph._i.push([token, {
       api_host: 'https://us.i.posthog.com', ui_host: 'https://us.posthog.com', defaults: '2026-08-30',
       autocapture: false, capture_pageview: false, capture_pageleave: false,
-      disable_session_recording: true, capture_heatmaps: false, capture_exceptions: false,
+      disable_session_recording: false, capture_heatmaps: false, capture_exceptions: false,
+      session_recording: {
+        maskAllInputs: false,
+        maskInputOptions: { password: true },
+        maskTextSelector: '',
+        recordCrossOriginIframes: false,
+        recordHeaders: false, recordBody: false,
+        maskCapturedNetworkRequestFn: function (request) {
+          if (request.name) request.name = cleanURL(request.name);
+          return request;
+        }
+      },
+      enable_recording_console_log: false,
       person_profiles: 'always', persistence: 'localStorage+cookie', before_send: scrub,
       advanced_disable_feature_flags: true
     }, 'posthog']);
@@ -53,14 +67,28 @@
     sdk.src = 'https://us-assets.i.posthog.com/static/array.js';
     document.head.appendChild(sdk);
   }
+  var userAgent = navigator.userAgent || '';
+  var deviceType = /iPad|Tablet|Android(?!.*Mobile)/i.test(userAgent) || (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1) ? 'tablet' : /Mobi|iPhone|Android/i.test(userAgent) ? 'mobile' : 'desktop';
+  var lastPointer = '';
+  window.addEventListener('pointerdown', function (event) { lastPointer = event.pointerType || ''; }, { passive: true });
+  window.addEventListener('keydown', function () { lastPointer = 'keyboard'; }, { passive: true });
   function track(event, properties, options) {
-    window.posthog.capture(event, Object.assign({ page: page, environment: environment, analytics_version: '1' }, properties || {}), options);
+    window.posthog.capture(event, Object.assign({ page: page, environment: environment, analytics_version: '3-device', device_type: deviceType, viewport_width: window.innerWidth, viewport_height: window.innerHeight }, properties || {}), options);
   }
   ph.register({ environment: environment });
   track('$pageview', { $current_url: cleanURL(location.href), $referrer: cleanURL(document.referrer), $title: document.title });
   document.addEventListener('click', function (event) {
     var el = event.target.closest('a,button');
-    if (!el || el.closest('.portfolio-guide')) return;
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    var pointer = event.detail === 0 ? 'keyboard' : event.pointerType || lastPointer || 'unknown';
+    track('element_click', {
+      element_id: el.id || '', element_tag: el.tagName.toLowerCase(),
+      pointer_type: pointer,
+      destination: href.indexOf('mailto:') === 0 ? 'email' : href ? cleanURL(href) : '',
+      placement: el.closest('.portfolio-guide') ? 'chatbot' : el.closest('footer') ? 'footer' : el.closest('nav') ? 'navigation' : 'content'
+    });
+    if (el.closest('.portfolio-guide')) return;
     if (el.id === 'resumePrint') return track('resume_print');
     if (el.hasAttribute('data-lens')) return track('illustration_changed', { lens: el.getAttribute('data-lens') });
     if (el.id === 'themeBtn' || el.id === 'resumeTheme') return track('theme_changed');
