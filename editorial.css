@@ -270,3 +270,9 @@ footer p{margin-top:1.2rem;color:#bdcadb;font-size:.95rem;max-width:34rem}
   .site-header .nav{gap:.3rem}
   .site-header .nav>.cta{padding:.5rem .6rem}
 }
+
+/* Compact laptop default. Browser zoom and mobile remain user-controlled. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  body{zoom:.8}
+  .portfolio-guide{zoom:1.25}
+}

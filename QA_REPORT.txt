@@ -1,0 +1,41 @@
+PORTFOLIO QA — 4 November 2026
+Build: 20261104-qa2
+
+1. DISCOVERABILITY
+Observed: public GitHub Pages returned HTTP 200. robots.txt allowed crawling. Search queries returned Kanvis and LinkedIn; the targeted portfolio query returned no matching portfolio result. This is evidence of a discovery gap, not definitive proof of deindexing.
+Changed: explicit Research & Data Analyst H1; natural description of existing skills; linked profile/evidence from public footers; sameAs links to LinkedIn and owner-confirmed Kanvis; refreshed structured-data dates; refreshed sitemap; explicit OAI-SearchBot allowance; source-index discovery link; .nojekyll included.
+PASS: HTML parser resource checks on 22 pages, valid JSON-LD, valid XML sitemap, all sitemap URLs refer to existing indexable pages, no missing local linked resources, one analytics installation per page.
+LIMIT: index inclusion/rankings and AI recommendations are not controllable by site code. Search Console verification, sitemap submission and recrawl requests remain owner account actions. Add the portfolio to LinkedIn Featured/Contact and Kanvis website link. The external Kanvis summary appears to describe a completed master's; review it against the ongoing MS described in the portfolio.
+
+2. NOTICE AND LAYOUT
+Changed: a checkbox acknowledges and hides the recording notice, persisted in localStorage. Privacy reopens it. Full privacy details remain linked. The repeating long chatbot disclosure is hidden; the notice still discloses collection of chats and optional name/email. Acknowledgement is not implemented as consent or a tracking opt-in.
+PASS: browser clicks hid the notice, reopening chat preserved dismissal, Privacy restored notice. Contact fields expand/collapse. Synthetic response fixture verified chat rendering; it is not a live model-quality test.
+PASS laptop 1366x768: body zoom=.8, panel x=926..1346 and y=25..681; input y=583..627, within viewport; no horizontal page overflow.
+PASS phone 390x844: body zoom=1; panel x=12..378 and y=12..756; input y=658..702, within viewport; no horizontal page overflow.
+The website does not change the browser zoom setting. It applies CSS zoom to desktop body, with chat counter-scaled for readability; touch/mobile layouts are unchanged.
+No browser JavaScript errors in the completed layout runs.
+
+3. EVENTS AND REPLAY
+CONFIRMED BLOCKER: PostHog public remote configuration returned sessionRecording=false. Source: https://us-assets.i.posthog.com/array/<public-project-token>/config.js, read from the site's configured public token. Project ID documented by the original package: 708155. Only use the project whose token matches analytics.js.
+Changed: removed restrictive feature-flag suppression; loaded SDK starts recording without overriding account rules; added SDK/error/session diagnostics and a human-operated ingestion test at analytics-check.html; name-only profile properties and standard $name/$email fields; retained phone/tablet/desktop and pointer-type click properties; versioned all HTML asset references to avoid old cached JS/CSS.
+PASS with SDK mock: replay enabled; password inputs masked; name/email/chat unmasked as requested; network bodies/headers and console recording off; snapshot payload structure preserved; query strings removed from event URLs; chat payloads retained; mouse/touch/device properties; DNT, GPC and opt-out prevent analytics startup.
+PASS: real PostHog CDN SDK and public remote config loaded; session IDs created. Replay stayed false consistently with account configuration.
+NOT VERIFIED: event ingestion acknowledgement in the authenticated account, persisted recordings, account quotas, and selected dashboard filters. Automated-browser event capture is filtered by PostHog. An attempt to conceal automation during a test was rejected by automatic review; that approach was stopped. These are not represented as successful live ingestion tests.
+Owner action: enable Record user sessions in PostHog, check recording URL/sampling rules and limits, deploy this package, then visit analytics-check.html from a normal browser and inspect its test event in Activity. Start a fresh visit to verify replay. Old unrecorded sessions cannot be recovered.
+
+4. GEMMA
+Owner selected Cloudflare-supported Gemma 4 26B A4B after exact Gemma 4 12B could not be verified in the Cloudflare catalog.
+Prepared model: @cf/google/gemma-4-26b-a4b-it. Source: https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/
+Changed: model constant, completion API settings, concise conversational style prompt, Qwen-specific suffix removed, bounded timeout and support for OpenAI-style completion output; rebuilt standalone DEPLOY-WORKER.js.
+PASS with mocked inference: model selected correctly, JSON decoded, known sources required, invalid source rejected, system history rejected, REST validation/health and MCP initialization.
+NOT DEPLOYED: no authenticated Cloudflare account access. Live Gemma writing quality, latency and hallucination checks require Worker deployment and live evaluation. representative.json retains the previously deployed model and explicitly marks the pending Gemma model.
+
+Official references
+https://developers.google.com/search/docs/appearance/structured-data/profile-page
+https://developers.google.com/search/docs/fundamentals/ai-optimization-guide
+https://developers.openai.com/api/docs/bots
+https://posthog.com/docs/libraries/js
+https://posthog.com/docs/session-replay/privacy
+https://posthog.com/docs/product-analytics/troubleshooting
+https://posthog.com/tutorials/api-capture-events
+https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/

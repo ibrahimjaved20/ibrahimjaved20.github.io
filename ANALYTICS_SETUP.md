@@ -1,3 +1,7 @@
+# Current status: build 20261104-qa2
+
+Replay is enabled in website code but was disabled in the public PostHog project configuration at audit time. Enable it in the account; see READ_FIRST.txt. Use analytics-check.html for a normal-browser ingestion check. QA_REPORT.txt supersedes older verification claims below.
+
 # Portfolio analytics
 
 Connected 4 November 2026 to Ibrahim's PostHog project 708155 (US Cloud). The browser project token is intentionally public and write-only; there is no personal API key in this website.

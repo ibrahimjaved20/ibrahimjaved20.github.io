@@ -3,5 +3,7 @@
   "status": "active",
   "model": "@cf/qwen/qwen3-30b-a3b-fp8",
   "source": "profile.json",
-  "verified_on": "2026-11-04"
+  "verified_on": "2026-11-04",
+  "pending_model": "@cf/google/gemma-4-26b-a4b-it",
+  "deployment_note": "Gemma backend source prepared; deploy Worker and run connect-representative before marking active model."
 }

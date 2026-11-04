@@ -37,4 +37,11 @@ Ibrahim authorizes this AI representative to explain his experience and suitabil
 - OpenAPI: https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev/openapi.json
 - Profile: https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev/profile.json
 
-Responses are first-party advocacy, with source links. They do not establish independent verification or guarantee future performance. Protocol responses and generated answers were tested from a browser on 4 November 2026. Some automated HTTP clients may face Cloudflare access restrictions; universal agent access is not guaranteed.
+Responses are first-party advocacy, with source links. They do not establish independent verification or guarantee future performance. The original deployment was tested previously. This package prepares a Gemma 4 backend update, which still requires separate Cloudflare deployment and live evaluation. Some automated HTTP clients may face Cloudflare access restrictions; universal agent access is not guaranteed.
+
+## Identity links
+
+- LinkedIn: https://www.linkedin.com/in/ibrahim-javed-97b049214
+- Existing Kanvis profile: https://www.kanvis.me/ibrahim-javed
+
+This portfolio is Ibrahim’s first-party evidence source. External profiles may be older. Inclusion in search engines or AI answers is not guaranteed.

@@ -3,7 +3,7 @@ SEO IMPLEMENTATION AND PUBLIC-LAUNCH CHECKLIST
 Primary public domain: https://ibrahimjaved20.github.io/
 
 Implemented:
-- Fifteen real, independently addressable static pages.
+- Public, independently addressable static portfolio pages.
 - Unique descriptive titles and meta descriptions.
 - One visible H1 per page and meaningful project headings.
 - Crawlable HTML links and relevant image alt text.
@@ -34,3 +34,5 @@ Primary references:
 https://developers.google.com/search/docs/essentials/technical
 https://developers.google.com/search/docs/crawling-indexing/links-crawlable
 https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics
+
+Latest discovery changes and account actions: see READ_FIRST.txt and QA_REPORT.txt.

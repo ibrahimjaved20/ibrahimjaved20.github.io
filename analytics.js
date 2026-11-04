@@ -2,20 +2,25 @@
   'use strict';
   // This is a public, write-only PostHog project token, not a personal API key.
   var token = 'phc_yrQK5ydNFUz7tWGv9fPHvqoTjqozNdeKeqNxHP2cJYpF';
+  var diagnostics = window.PortfolioAnalyticsStatus = { sdk: 'loading', recording: false, last_error: null, build: '20261104-qa2' };
   var preference = 'portfolio-analytics-disabled';
-  var disabled = navigator.globalPrivacyControl === true || navigator.doNotTrack === '1';
+  var privacySignal = navigator.globalPrivacyControl === true || navigator.doNotTrack === '1';
+  var disabled = privacySignal;
   try { disabled = disabled || localStorage.getItem(preference) === 'true'; } catch (_) {}
   var settings = document.getElementById('analyticsToggle');
   if (settings) {
-    settings.textContent = disabled ? 'Analytics is off in this browser' : 'Turn off analytics in this browser';
-    settings.disabled = disabled;
+    settings.textContent = disabled ? 'Turn on analytics in this browser' : 'Turn off analytics in this browser';
+    settings.disabled = privacySignal;
+    if (privacySignal) settings.textContent = 'Analytics disabled by your browser privacy signal';
     settings.addEventListener('click', function () {
-      try { localStorage.setItem(preference, 'true'); } catch (_) {}
-      if (window.posthog && window.posthog.opt_out_capturing) window.posthog.opt_out_capturing();
+      try { localStorage.setItem(preference, disabled ? 'false' : 'true');
+        if (disabled) localStorage.setItem('portfolio-analytics-reenable','true');
+      } catch (_) {}
+      if (!disabled && window.posthog && window.posthog.opt_out_capturing) window.posthog.opt_out_capturing();
       location.reload();
     });
   }
-  if (disabled) return;
+  if (disabled) { diagnostics.sdk = privacySignal ? 'privacy-signal' : 'opted-out'; return; }
   var local = /^(localhost|127\.0\.0\.1|terminal\.local)$/.test(location.hostname);
   var environment = location.hostname === 'ibrahimjaved20.github.io' ? 'production' : local ? 'test' : 'demo';
   var page = location.pathname === '/' ? '/index.html' : location.pathname;
@@ -28,7 +33,7 @@
     function clean(props) {
       Object.keys(props).forEach(function (key) {
         if (/url|referrer/i.test(key) && typeof props[key] === 'string') props[key] = cleanURL(props[key]);
-        if (/search|query|email|question|answer|text/i.test(key) && !['chat_message','visitor_name','visitor_email'].includes(key)) delete props[key];
+        if (/search|query|email|question|answer|text/i.test(key) && !['chat_message','visitor_name','visitor_email','$name','$email'].includes(key)) delete props[key];
         else if (props[key] && typeof props[key] === 'object') clean(props[key]);
       });
     }
@@ -39,7 +44,8 @@
   var ph = window.posthog = window.posthog || [];
   if (!ph.__SV) {
     ph._i = [];
-    ['capture', 'register', 'identify', 'opt_out_capturing'].forEach(function (name) {
+    ph.people = ph.people || [];
+    ['capture', 'register', 'identify', 'setPersonProperties', 'startSessionRecording', 'opt_in_capturing', 'opt_out_capturing'].forEach(function (name) {
       ph[name] = function () { ph.push([name].concat([].slice.call(arguments))); };
     });
     ph._i.push([token, {
@@ -59,12 +65,26 @@
       },
       enable_recording_console_log: false,
       person_profiles: 'always', persistence: 'localStorage+cookie', before_send: scrub,
-      advanced_disable_feature_flags: true
+      loaded: function (client) {
+        diagnostics.sdk = 'loaded';
+        try {
+          if (localStorage.getItem('portfolio-analytics-reenable') === 'true') {
+            client.opt_in_capturing(); localStorage.removeItem('portfolio-analytics-reenable');
+          }
+        } catch (_) {}
+        // Respect project recording rules and quotas; never force an override.
+        client.startSessionRecording();
+        diagnostics.recording = client.sessionRecordingStarted();
+      },
+      on_request_error: function (response) {
+        diagnostics.last_error = 'PostHog request failed' + (response && response.statusCode ? ' (HTTP ' + response.statusCode + ')' : '');
+      }
     }, 'posthog']);
     ph.__SV = 1;
     var sdk = document.createElement('script');
     sdk.async = true; sdk.crossOrigin = 'anonymous';
     sdk.src = 'https://us-assets.i.posthog.com/static/array.js';
+    sdk.onerror = function () { diagnostics.sdk = 'blocked-or-unavailable'; diagnostics.last_error = 'Analytics SDK could not load; check blockers or network.'; };
     document.head.appendChild(sdk);
   }
   var userAgent = navigator.userAgent || '';
@@ -73,16 +93,17 @@
   window.addEventListener('pointerdown', function (event) { lastPointer = event.pointerType || ''; }, { passive: true });
   window.addEventListener('keydown', function () { lastPointer = 'keyboard'; }, { passive: true });
   function track(event, properties, options) {
-    window.posthog.capture(event, Object.assign({ page: page, environment: environment, analytics_version: '3-device', device_type: deviceType, viewport_width: window.innerWidth, viewport_height: window.innerHeight }, properties || {}), options);
+    window.posthog.capture(event, Object.assign({ page: page, environment: environment, analytics_version: '20261104-qa2', device_type: deviceType, viewport_width: window.innerWidth, viewport_height: window.innerHeight }, properties || {}), options);
   }
   ph.register({ environment: environment });
   track('$pageview', { $current_url: cleanURL(location.href), $referrer: cleanURL(document.referrer), $title: document.title });
   document.addEventListener('click', function (event) {
-    var el = event.target.closest('a,button');
+    var el = event.target.closest('a,button,summary');
     if (!el) return;
     var href = el.getAttribute('href') || '';
     var pointer = event.detail === 0 ? 'keyboard' : event.pointerType || lastPointer || 'unknown';
     track('element_click', {
+      element_label: (el.getAttribute('data-analytics-label') || el.getAttribute('aria-label') || (el.closest('.portfolio-guide') ? el.id || el.tagName : el.textContent) || '').trim().slice(0,100),
       element_id: el.id || '', element_tag: el.tagName.toLowerCase(),
       pointer_type: pointer,
       destination: href.indexOf('mailto:') === 0 ? 'email' : href ? cleanURL(href) : '',
@@ -148,12 +169,28 @@
   }
   // Chat content is explicitly collected after the in-chat notice; automatic capture stays off.
   window.PortfolioAnalytics = {
+    status: function () {
+      var client = window.posthog;
+      diagnostics.recording = !!(client && client.sessionRecordingStarted && client.sessionRecordingStarted());
+      return Object.assign({}, diagnostics, {session_id: client && client.get_session_id ? client.get_session_id() : null});
+    },
+    verify: function (callback) {
+      if (!window.posthog || !window.posthog.__loaded) { callback({ok:false,message:'SDK has not loaded yet.'}); return; }
+      fetch('https://us.i.posthog.com/i/v0/e/', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({api_key: token, event:'portfolio_qa_check', distinct_id:window.posthog.get_distinct_id(),
+          properties:{environment:environment,build:diagnostics.build,$session_id:window.posthog.get_session_id(),$current_url:cleanURL(location.href)}})
+      }).then(function(response){callback({ok:response.ok,status:response.status});})
+        .catch(function(){callback({ok:false,message:'Ingestion request blocked or unavailable.'});});
+
+    },
     identify: function (name, email) {
       name = String(name || '').trim().slice(0,100);
       email = String(email || '').trim().toLowerCase().slice(0,254);
       if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        ph.identify(email, { visitor_name: name, visitor_email: email });
+        ph.identify(email, { visitor_name: name, visitor_email: email, $name: name || undefined, $email: email });
       } else if (name) {
+        ph.setPersonProperties({ visitor_name: name, $name: name });
         track('chat_details_shared', { visitor_name: name });
       }
     },

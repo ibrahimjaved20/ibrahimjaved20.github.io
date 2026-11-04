@@ -10,3 +10,5 @@ This license covers only the named assistant implementation files. Portfolio pho
 Transformers.js and MiniLM 0.2.87: Apache-2.0; see vendor/WEBLLM-LICENSE.txt. Source: https://github.com/mlc-ai/web-llm
 Qwen2.5-0.5B-Instruct: Apache-2.0. Model card: https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct
 Model weights and compiled WebGPU library are downloaded on demand from Transformers.js and MiniLM's configured upstream hosts and are not bundled with this site.
+
+Hosted conversational model source: Gemma 4 via Cloudflare Workers AI, pending deployment. https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/ . The older Qwen2.5 note above is historical and is not an included model weight.

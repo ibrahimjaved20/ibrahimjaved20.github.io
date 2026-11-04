@@ -1,0 +1,34 @@
+LATEST COMPLETE PORTFOLIO PACKAGE — supersedes earlier ZIPs
+
+A. PUBLISH THE WEBSITE
+1. Extract this ZIP.
+2. GitHub Desktop > Repository > Show in Explorer.
+3. Copy all extracted contents directly into that folder. Replace matching files. Keep .git and .github. Do not copy an extra enclosing folder. index.html must stay at repository root.
+4. Commit summary: Fix discoverability, chat notice, analytics and laptop layout.
+5. Push origin. Wait for successful Pages deployment; hard-refresh the website.
+
+B. ENABLE AND VERIFY POSTHOG (ACCOUNT SETTING STILL REQUIRED)
+1. Open the portfolio's PostHog project; the original package identifies project 708155 in US Cloud. Verify its public token matches analytics.js.
+2. Session replay > Settings (or Open replay settings in the disabled recording notice). Turn on Record user sessions. Review recording rules, sampling, URL filters, and usage limits.
+3. In a normal browser open https://ibrahimjaved20.github.io/analytics-check.html and click Check connection.
+4. SDK should load and session_id should be populated. An accepted labelled test event verifies ingestion acceptance, not recording storage. Look for portfolio_qa_check in Activity.
+5. Open the homepage in a new visit, click projects and scroll for at least 20 seconds. Then open Session replay and inspect that visit. Check date/environment filters (production vs test).
+6. No data? Check blockers, DNT/GPC, prior opt-out, project selection, domain filters and quotas. privacy.html now lets a manually opted-out browser opt back in; DNT/GPC are still respected.
+Names/email/chat are visible per your instructions; password inputs remain protected.
+
+C. DEPLOY GEMMA ON CLOUDFLARE (SEPARATE FROM GITHUB)
+1. Open your existing ibrahim-portfolio-assistant Worker in Cloudflare.
+2. Edit code; replace it with assistant-server/DEPLOY-WORKER.js. Keep AI binding named AI. Deploy without changing your billing plan.
+3. Open the Worker /health URL and verify configured + @cf/google/gemma-4-26b-a4b-it.
+4. Test several normal and follow-up questions. Confirm evidence links and no invented credentials, availability or rates.
+5. If Node is installed, run the evaluation/connect scripts described in assistant-server/README.md. They update representative.json only after a live check.
+The 26B A4B variant is the supported option you selected, not the exact 12B from the Google article.
+
+D. SUBMIT FOR DISCOVERY
+1. Add your portfolio URL to LinkedIn Featured/Contact and your Kanvis website field.
+2. Verify https://ibrahimjaved20.github.io/ as a URL-prefix property in Google Search Console. Download its HTML verification file and add it unchanged to this repository when requested. Do not invent a verification token.
+3. Submit sitemap.xml and request indexing for /, /profile.html and /about.html.
+4. Check indexing reports after crawling. Similar steps can be used in Bing Webmaster Tools.
+5. llms.txt is an evidence index, not a ranking switch. No guarantee of appearing for a broad unnamed-analyst query is possible.
+
+See QA_REPORT.txt for exact checks and remaining limits.
