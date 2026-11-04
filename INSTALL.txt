@@ -1,0 +1,34 @@
+PORTFOLIO STREAMING + QA FIXES
+
+REPLACE FILES; DELETE NOTHING. This is a patch, not the complete website.
+
+1. Deploy Cloudflare first:
+Open assistant-server/DEPLOY-WORKER.js using Notepad. Copy ALL its contents.
+Cloudflare > Workers & Pages > ibrahim-portfolio-assistant > Edit code.
+Replace all main script code, preserve the existing AI binding named AI, Deploy.
+Check https://ibrahim-portfolio-assistant.ibrahimjaved20.workers.dev/health
+Expected: configured, Gemma model, version 1.2.0-stream.
+
+2. Update GitHub:
+GitHub Desktop > Repository > Show in Explorer.
+Copy every extracted .html file, portfolio-guide.js, portfolio-knowledge.js and
+profile.json into that repository root. Replace matching files.
+Open the extracted assistant-server folder and copy its THREE FILES into the
+repository's existing assistant-server folder. Keep its other five files.
+Do not delete the folder or any assets. The three files are:
+DEPLOY-WORKER.js, knowledge.mjs, worker.mjs.
+Commit: Add streaming chatbot and fix QA page. Push origin.
+
+3. Verify after GitHub Pages deploys:
+Hard-refresh the portfolio (Ctrl+Shift+R). Ask a new question.
+The message should fill gradually after thinking, then show evidence links.
+Thinking remains ENABLED. The app does not show private reasoning.
+No 1-2 second start or completion time is guaranteed.
+Visit grant-data-qa.html: explanation is permanently visible with no arrow.
+Open the QA demo and click Back to the case study: grant-data-qa.html opens.
+
+Checks: JavaScript syntax, mocked provider/client streaming, split frames,
+Unicode, reasoning suppression, evidence links, failure handling and JSON
+backward compatibility. Live Gemma streaming requires your Cloudflare deployment
+and is not claimed verified. Existing source-only metadata may still say Qwen;
+the deployed /health response is the runtime configuration reference.

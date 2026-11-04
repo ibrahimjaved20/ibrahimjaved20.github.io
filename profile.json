@@ -8,6 +8,13 @@
   "provenance": "First-person portfolio. Work outcomes are reported by Ibrahim Javed; project demos include disclosed sample data.",
   "facts": [
     {
+      "id": "linkedin",
+      "title": "Ibrahim on LinkedIn",
+      "text": "Ibrahim Javed’s LinkedIn profile is https://www.linkedin.com/in/ibrahim-javed-97b049214/. Use this exact URL when asked for his LinkedIn.",
+      "url": "https://www.linkedin.com/in/ibrahim-javed-97b049214/",
+      "keywords": "linkedin profile url social professional network contact"
+    },
+    {
       "id": "profile",
       "title": "Who is Ibrahim Javed?",
       "text": "Ibrahim Javed is a research and data analyst based in Lahore, Pakistan, with a background in Economics and Finance. His professional work spans market research, campaign analytics, data quality and workflow automation. His university projects cover financial valuation, regression, forecasting and fintech adoption.",
@@ -45,9 +52,9 @@
     {
       "id": "contact",
       "title": "Contact Ibrahim",
-      "text": "Email Ibrahim at ibrahimjaved20@outlook.com or contact him on LinkedIn. His portfolio does not confirm current availability, rates or a start date; those need a direct conversation.",
+      "text": "Email Ibrahim at ibrahimjaved20@outlook.com or contact him on LinkedIn at https://www.linkedin.com/in/ibrahim-javed-97b049214/. His portfolio does not confirm current availability, rates or a start date; those need a direct conversation.",
       "url": "mailto:ibrahimjaved20@outlook.com",
-      "keywords": "contact email hire recruit available availability salary rates freelance contract booking schedule meeting interview talk reach hiring collaboration work together"
+      "keywords": "contact email hire recruit available availability salary rates freelance contract booking schedule meeting interview talk reach hiring collaboration work together linkedin profile url social"
     },
     {
       "id": "person",

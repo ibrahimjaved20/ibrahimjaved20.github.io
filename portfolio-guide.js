@@ -30,14 +30,36 @@
  var launch=host.querySelector('.guide-launcher'),panel=host.querySelector('.guide-panel'),log=host.querySelector('.guide-conversation'),input=host.querySelector('#guide-question'),form=host.querySelector('form'),error=host.querySelector('.guide-error'),last=[],busy=false,previousQuestion='';
  var conversation=[],representativeEndpoint=null;
  var representativeReady=fetch('./representative.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('No configuration');return r.json();}).then(function(c){if(c.endpoint&&/^https:\/\//.test(c.endpoint)){representativeEndpoint=c.endpoint.replace(/\/$/,'');return true;}return false;}).catch(function(){return false;});
- async function askRepresentative(question,history){
+ async function askRepresentative(question,history,onText){
   if(!await representativeReady)throw new Error('Representative not activated');
-  var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},45000);
-  try{var response=await fetch(representativeEndpoint+'/v1/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:question,history:history||[]}),signal:controller.signal});
-   if(!response.ok)throw new Error('Representative unavailable');var answer=await response.json();
-   if(answer.mode!=='generative'||typeof answer.answer!=='string'||!Array.isArray(answer.sources))throw new Error('Invalid answer');
+  var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},90000),reader=null;
+  try{
+   var response=await fetch(representativeEndpoint+'/v1/chat',{method:'POST',headers:{'Content-Type':'application/json','Accept':'text/event-stream, application/json'},body:JSON.stringify({question:question,history:history||[],stream:typeof onText==='function'}),signal:controller.signal});
+   if(!response.ok)throw new Error('Representative unavailable');
+   var answer=null;
+   if((response.headers.get('content-type')||'').includes('text/event-stream')){
+    if(!response.body)throw new Error('Streaming unavailable');
+    reader=response.body.getReader();var decoder=new TextDecoder(),buffer='';
+    function frame(block){
+     var lines=block.split('\n'),event='message',payload=[];
+     lines.forEach(function(line){if(line.indexOf('event:')===0)event=line.slice(6).trim();if(line.indexOf('data:')===0)payload.push(line.slice(5).trimStart());});
+     if(!payload.length)return;
+     var packet=JSON.parse(payload.join('\n'));
+     if(event==='failure')throw new Error('Reply interrupted');
+     if(event==='answer'&&onText&&typeof packet.text==='string')onText(packet.text);
+     if(event==='complete')answer=packet;
+    }
+    while(!answer){
+     var chunk=await reader.read();if(chunk.done)break;
+     buffer+=decoder.decode(chunk.value,{stream:true});buffer=buffer.replace(/\r\n/g,'\n');
+     var end;while((end=buffer.indexOf('\n\n'))>=0){var block=buffer.slice(0,end);buffer=buffer.slice(end+2);frame(block);}
+     if(buffer.length>100000)throw new Error('Invalid stream');
+    }
+    buffer+=decoder.decode();if(buffer.trim()&&!answer)frame(buffer);
+   }else{answer=await response.json();}
+   if(!answer||answer.mode!=='generative'||typeof answer.answer!=='string'||!Array.isArray(answer.sources))throw new Error('Invalid answer');
    return answer;
-  }finally{clearTimeout(timer);}
+  }finally{clearTimeout(timer);if(reader)reader.cancel().catch(function(){});}
  }
  var status=host.querySelector('.guide-engine-status'),worker=null,ready=null,requestId=0,pendingRequests=new Map();
  function startSemantic(){
@@ -73,8 +95,8 @@
   if(!await representativeReady&&/^(hi|hello|hey|salam)[.!?\s]*$/i.test(q)){message('Hello! Ask me about Ibrahim’s work, studies, projects or life outside work.','assistant');return;}
   busy=true;form.querySelector('button').disabled=true;var pending=message('Finding the relevant details…','assistant');
   if(await representativeReady){
-   try{var answer=await askRepresentative(q,conversation);pending.remove();message(answer.answer,'assistant',answer.sources);conversation.push({role:'user',content:q},{role:'assistant',content:answer.answer.slice(0,2000)});conversation=conversation.slice(-6);busy=false;form.querySelector('button').disabled=false;if(!panel.hidden)input.focus();return;}
-   catch(e){if(window.PortfolioAnalytics)window.PortfolioAnalytics.chat('chat_fallback','local');status.textContent='The conversational representative is unavailable. Showing published facts from local search.';}
+   try{pending.setAttribute('aria-busy','true');var answer=await askRepresentative(q,conversation,function(text){var nearBottom=log.scrollHeight-log.scrollTop-log.clientHeight<100;pending.querySelector('p').textContent=text;if(nearBottom)log.scrollTop=log.scrollHeight;});pending.remove();message(answer.answer,'assistant',answer.sources);conversation.push({role:'user',content:q},{role:'assistant',content:answer.answer.slice(0,2000)});conversation=conversation.slice(-6);busy=false;form.querySelector('button').disabled=false;if(!panel.hidden)input.focus();return;}
+   catch(e){pending.querySelector('p').textContent='Finding the relevant details…';pending.removeAttribute('aria-busy');if(window.PortfolioAnalytics)window.PortfolioAnalytics.chat('chat_fallback','local');status.textContent='The conversational representative is unavailable. Showing published facts from local search.';}
   }
   var effective=q;
   if(/\b(phd|doctorate)\b/i.test(q)){message('His published education lists a BS (Hons.) in Economics and Finance and ongoing MS studies at LUMS. It does not list a PhD.','assistant',[facts.find(function(f){return f.id==='education';})]);pending.remove();busy=false;form.querySelector('button').disabled=false;return;}
